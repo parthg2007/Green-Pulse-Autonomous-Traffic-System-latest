@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green-Pulse | The Urban Crisis - Impact Report</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --alert-red: #ff4757;
+            --warning-amber: #ffa502;
+            --critical-purple: #a855f7;
+            --death-gray: #2d3436;
+            --bg: #070707;
+            --bg-secondary: #0d0d0d;
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --border-glow: rgba(255, 71, 87, 0.15);
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--alert-red) transparent;
+        }
+
+        *::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: var(--alert-red);
+            border-radius: 3px;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        .brand-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .mono-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 30px;
+            transition: opacity 0.6s, visibility 0.6s;
+        }
+
+        #preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-heartbeat {
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+
+        .loader-heartbeat::before,
+        .loader-heartbeat::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 3px solid var(--alert-red);
+            border-radius: 50%;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        .loader-heartbeat::after {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes heartbeat {
+            0% {
+                transform: scale(0.5);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .loader-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--alert-red);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Background Effects */
+        .danger-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(to right, rgba(255, 71, 87, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 71, 87, 0.03) 1px, transparent 1px);
+            background-size: 80px 80px;
+            mask-image: radial-gradient(ellipse 70% 50% at 50% 30%, black 20%, transparent 100%);
+            z-index: -1;
+        }
+
+        .smoke-overlay {
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(255, 71, 87, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 165, 2, 0.03) 0%, transparent 40%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .floating-particles {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--alert-red);
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: float-up 15s infinite linear;
+        }
+
+        @keyframes float-up {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.3;
+            }
+
+            90% {
+                opacity: 0.3;
+            }
+
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Cursor */
+        #cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--alert-red);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 20px var(--alert-red);
+        }
+
+        #cursor-outline {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 71, 87, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #cursor-outline.hovering {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 71, 87, 0.1);
+            border-color: var(--alert-red);
+        }
+
+        /* Warning Banner */
+        .warning-banner {
+            background: linear-gradient(90deg, transparent, rgba(255, 71, 87, 0.1), transparent);
+            border-top: 1px solid rgba(255, 71, 87, 0.2);
+            border-bottom: 1px solid rgba(255, 71, 87, 0.2);
+            padding: 12px 0;
+            overflow: hidden;
+        }
+
+        .warning-scroll {
+            display: flex;
+            animation: scroll-left 20s linear infinite;
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 71, 87, 0.02) 100%);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--alert-red), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--alert-red);
+            box-shadow: 0 20px 60px rgba(255, 71, 87, 0.15);
+        }
+
+        .stat-number {
+            font-size: 4rem;
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1;
+            background: linear-gradient(135deg, #fff 0%, var(--alert-red) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .red-glow {
+            text-shadow: 0 0 30px rgba(255, 71, 87, 0.5), 0 0 60px rgba(255, 71, 87, 0.3);
+            color: var(--alert-red);
+        }
+
+        /* Progress Bars */
+        .danger-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .danger-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            position: relative;
+            animation: pulse-bar 2s infinite;
+        }
+
+        @keyframes pulse-bar {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .danger-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Chart Styles */
+        .chart-container {
+            position: relative;
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            padding: 20px 0;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--alert-red), rgba(255, 71, 87, 0.3));
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            animation: grow-up 1s ease-out forwards;
+            transform-origin: bottom;
+        }
+
+        @keyframes grow-up {
+            from {
+                transform: scaleY(0);
+            }
+
+            to {
+                transform: scaleY(1);
+            }
+        }
+
+        .chart-bar::before {
+            content: attr(data-value);
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--alert-red);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .chart-bar:hover::before {
+            opacity: 1;
+        }
+
+        /* Circular Progress */
+        .circle-progress {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .circle-progress svg {
+            transform: rotate(-90deg);
+        }
+
+        .circle-progress .bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 8;
+        }
+
+        .circle-progress .progress {
+            fill: none;
+            stroke: var(--alert-red);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 314;
+            stroke-dashoffset: 314;
+            animation: circle-fill 2s ease-out forwards;
+        }
+
+        @keyframes circle-fill {
+            to {
+                stroke-dashoffset: var(--offset);
+            }
+        }
+
+        .circle-value {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--alert-red), transparent);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -33px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            background: var(--alert-red);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--alert-red);
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .comparison-table th {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover td {
+            background: rgba(255, 71, 87, 0.05);
+        }
+
+        /* Impact Cards */
+        .impact-card {
+            background: var(--glass-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .impact-card:hover {
+            border-color: var(--alert-red);
+            transform: translateX(8px);
+        }
+
+        /* Glitch Text */
+        .glitch {
+            position: relative;
+            animation: glitch-skew 1s infinite linear alternate-reverse;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            animation: glitch-effect 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+            color: #ff00ff;
+            z-index: -1;
+        }
+
+        .glitch::after {
+            animation: glitch-effect 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse both infinite;
+            color: #00ffff;
+            z-index: -2;
+        }
+
+        @keyframes glitch-effect {
+            0% {
+                transform: translate(0);
+            }
+
+            20% {
+                transform: translate(-2px, 2px);
+            }
+
+            40% {
+                transform: translate(-2px, -2px);
+            }
+
+            60% {
+                transform: translate(2px, 2px);
+            }
+
+            80% {
+                transform: translate(2px, -2px);
+            }
+
+            100% {
+                transform: translate(0);
+            }
+        }
+
+        @keyframes glitch-skew {
+            0% {
+                transform: skew(0deg);
+            }
+
+            10% {
+                transform: skew(-0.5deg);
+            }
+
+            20% {
+                transform: skew(0.5deg);
+            }
+
+            30% {
+                transform: skew(0deg);
+            }
+
+            100% {
+                transform: skew(0deg);
+            }
+        }
+
+        /* Pulse Animation */
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--alert-red);
+            border-radius: 50%;
+            animation: pulse-ring 2s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* CTA Button */
+        .cta-danger {
+            position: relative;
+            padding: 18px 40px;
+            background: transparent;
+            border: 2px solid var(--alert-red);
+            color: var(--alert-red);
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            overflow: hidden;
+            transition: all 0.4s;
+        }
+
+        .cta-danger::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--alert-red);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s;
+            z-index: -1;
+        }
+
+        .cta-danger:hover::before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .cta-danger:hover {
+            color: #fff;
+            box-shadow: 0 0 40px rgba(255, 71, 87, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+
+            #cursor-dot,
+            #cursor-outline {
+                display: none;
+            }
+
+            body {
+                cursor: auto;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Counter Animation */
+        .counter {
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader-heartbeat"></div>
+        <div class="loader-text">Analyzing Crisis Data</div>
+    </div>
+
+    <!-- Cursors -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+
+    <!-- Background Effects -->
+    <div class="danger-grid"></div>
+    <div class="smoke-overlay"></div>
+    <div class="floating-particles" id="particles"></div>
+
+    <!-- Warning Banner -->
+    <div class="warning-banner fixed top-0 left-0 right-0 z-40">
+        <div class="warning-scroll">
+            <div class="flex items-center gap-12 text-[11px] mono-font uppercase tracking-widest whitespace-nowrap">
+                <span class="flex items-center gap-2 text-red-400"><i class="fas fa-triangle-exclamation"></i> CRITICAL
+                    ALERT: AIR QUALITY INDEX EXCEEDS SAFE LIMITS</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2 text-amber-400"><i class="fas fa-smog"></i> PM2.5 LEVELS: 312 µg/m³
+                    (HAZARDOUS)</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2 text-red-400"><i class="fas fa-hospital"></i> RESPIRATORY CASES:
+                    +47% THIS WEEK</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2 text-amber-400"><i class="fas fa-car-burst"></i> TRAFFIC
+                    CONGESTION: SEVERE</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2 text-red-400"><i class="fas fa-triangle-exclamation"></i> CRITICAL
+                    ALERT: AIR QUALITY INDEX EXCEEDS SAFE LIMITS</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2 text-amber-400"><i class="fas fa-smog"></i> PM2.5 LEVELS: 312 µg/m³
+                    (HAZARDOUS)</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2 text-red-400"><i class="fas fa-hospital"></i> RESPIRATORY CASES:
+                    +47% THIS WEEK</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2 text-amber-400"><i class="fas fa-car-burst"></i> TRAFFIC
+                    CONGESTION: SEVERE</span>
+                <span class="text-white/20">●</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav
+        class="fixed top-[45px] left-0 right-0 z-50 px-6 lg:px-12 py-4 backdrop-blur-xl border-b border-white/5 bg-black/20">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-4 group">
+                <div
+                    class="w-10 h-10 rounded-xl border border-red-500/30 flex items-center justify-center bg-red-500/10 group-hover:bg-red-500/20 transition">
+                    <i class="fas fa-arrow-left text-red-500"></i>
+                </div>
+                <div>
+                    <span class="brand-font font-bold text-lg block">CRISIS<span
+                            class="text-red-500">_REPORT</span></span>
+                    <span class="text-[9px] mono-font text-gray-500 tracking-wider">IMPACT ANALYSIS v2.4</span>
+                </div>
+            </a>
+
+            <div class="hidden lg:flex items-center gap-6">
+                <a href="index.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Home</a>
+                <a href="crisis.html"
+                    class="text-xs uppercase tracking-wider text-red-400 font-bold transition">Crisis</a>
+                <a href="simulation.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Sandbox</a>
+                <a href="tech.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Tech</a>
+                <a href="business.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Business</a>
+                <a href="roadmap.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Roadmap</a>
+            </div>
+
+            <a href="simulation.html"
+                class="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-red-500/10 border border-red-500/30 text-red-400 rounded-full hover:bg-red-500 hover:text-white transition-all text-xs font-semibold uppercase tracking-wider">
+                <i class="fas fa-shield-heart"></i>
+                View Solution
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-36 pb-32">
+
+        <!-- Hero Section -->
+        <section class="px-6 lg:px-12 max-w-7xl mx-auto mb-32">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="reveal">
+                    <div
+                        class="inline-flex items-center gap-3 px-5 py-2 bg-red-500/10 border border-red-500/30 rounded-full mb-8">
+                        <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                        <span class="text-red-400 text-[11px] font-semibold tracking-[0.3em] uppercase mono-font">Public
+                            Health Emergency</span>
+                    </div>
+
+                    <h1 class="text-5xl md:text-7xl lg:text-8xl font-black brand-font leading-[0.95] mb-8">
+                        THE<br>
+                        <span class="glitch red-glow" data-text="INVISIBLE">INVISIBLE</span><br>
+                        <span class="text-gray-500">KILLER</span>
+                    </h1>
+
+                    <p class="text-lg md:text-xl text-gray-400 max-w-xl font-light leading-relaxed mb-10">
+                        Static traffic management isn't just an inconvenience—it's a <span
+                            class="text-red-400 font-semibold">silent epidemic</span>.
+                        In India alone, transport inefficiency is linked to <span
+                            class="text-white font-semibold">millions of preventable deaths</span> every year.
+                    </p>
+
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#data" class="cta-danger">
+                            <i class="fas fa-chart-line mr-2"></i>View Data
+                        </a>
+                        <a href="simulation.html"
+                            class="px-8 py-4 border border-white/20 text-white rounded-full hover:border-emerald-500 hover:text-emerald-400 transition-all font-medium text-sm uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-network-wired"></i>Launch DQN Simulation
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Live Danger Meter -->
+                <div class="reveal" style="animation-delay: 0.2s;">
+                    <div
+                        class="relative p-8 bg-gradient-to-br from-red-500/10 to-transparent border border-red-500/20 rounded-3xl">
+                        <div class="absolute top-4 right-4 flex items-center gap-2 text-[9px] mono-font text-red-400">
+                            <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                            LIVE
+                        </div>
+
+                        <h3 class="text-sm font-bold uppercase tracking-widest text-gray-500 mb-8">Air Quality Index -
+                            Delhi NCR</h3>
+
+                        <div class="flex items-center justify-center mb-8">
+                            <div class="circle-progress" style="--offset: 50;">
+                                <svg width="120" height="120">
+                                    <circle class="bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="progress" cx="60" cy="60" r="50"></circle>
+                                </svg>
+                                <div class="circle-value text-red-500">
+                                    <span class="counter" data-target="312">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mb-8">
+                            <span
+                                class="inline-block px-4 py-2 bg-red-500/20 text-red-400 rounded-full text-sm font-bold uppercase tracking-wider">
+                                <i class="fas fa-skull-crossbones mr-2"></i>Hazardous
+                            </span>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-xs mb-2">
+                                    <span class="text-gray-500">PM2.5</span>
+                                    <span class="text-red-400 mono-font">312 µg/m³</span>
+                                </div>
+                                <div class="danger-bar">
+                                    <div class="danger-bar-fill bg-gradient-to-r from-red-600 to-red-400"
+                                        style="width: 85%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-2">
+                                    <span class="text-gray-500">PM10</span>
+                                    <span class="text-amber-400 mono-font">428 µg/m³</span>
+                                </div>
+                                <div class="danger-bar">
+                                    <div class="danger-bar-fill bg-gradient-to-r from-amber-600 to-amber-400"
+                                        style="width: 72%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-2">
+                                    <span class="text-gray-500">NO₂</span>
+                                    <span class="text-orange-400 mono-font">156 µg/m³</span>
+                                </div>
+                                <div class="danger-bar">
+                                    <div class="danger-bar-fill bg-gradient-to-r from-orange-600 to-orange-400"
+                                        style="width: 58%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Statistics -->
+        <section id="data" class="px-6 lg:px-12 max-w-7xl mx-auto mb-32">
+            <div class="text-center mb-16 reveal">
+                <span class="text-[10px] mono-font text-red-500 uppercase tracking-[0.5em] block mb-4">Impact
+                    Metrics</span>
+                <h2 class="text-3xl md:text-5xl font-bold brand-font">The Human Cost</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <div class="stat-card p-8 reveal" style="animation-delay: 0.1s;">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center">
+                            <i class="fas fa-skull text-2xl text-red-500"></i>
+                        </div>
+                        <span class="text-[9px] mono-font text-gray-600 bg-white/5 px-3 py-1 rounded-full">ANNUAL</span>
+                    </div>
+                    <div class="stat-number mb-2"><span class="counter" data-target="1.6">0</span>M</div>
+                    <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Premature Deaths</p>
+                    <p class="text-sm text-gray-500 leading-relaxed">Lives lost annually in India due to air pollution
+                        from vehicle emissions.</p>
+                    <div class="mt-6 pt-4 border-t border-white/5">
+                        <div class="flex items-center gap-2 text-xs text-red-400">
+                            <i class="fas fa-arrow-trend-up"></i>
+                            <span>+12.4% from last year</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card p-8 reveal" style="animation-delay: 0.2s;">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center">
+                            <i class="fas fa-gas-pump text-2xl text-amber-500"></i>
+                        </div>
+                        <span class="text-[9px] mono-font text-gray-600 bg-white/5 px-3 py-1 rounded-full">DAILY</span>
+                    </div>
+                    <div class="stat-number mb-2"
+                        style="background: linear-gradient(135deg, #fff 0%, #ffa502 100%); -webkit-background-clip: text;">
+                        +<span class="counter" data-target="30">0</span>%</div>
+                    <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">The Idling Tax</p>
+                    <p class="text-sm text-gray-500 leading-relaxed">Extra fuel burned due to vehicles idling at
+                        inefficient intersections.</p>
+                    <div class="mt-6 pt-4 border-t border-white/5">
+                        <div class="flex items-center gap-2 text-xs text-amber-400">
+                            <i class="fas fa-clock"></i>
+                            <span>47 min avg. daily idling</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card p-8 reveal" style="animation-delay: 0.3s;">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center">
+                            <i class="fas fa-money-bill-trend-up text-2xl text-green-500"></i>
+                        </div>
+                        <span
+                            class="text-[9px] mono-font text-gray-600 bg-white/5 px-3 py-1 rounded-full">ECONOMIC</span>
+                    </div>
+                    <div class="stat-number mb-2"
+                        style="background: linear-gradient(135deg, #fff 0%, #22c55e 100%); -webkit-background-clip: text;">
+                        $<span class="counter" data-target="22">0</span>B</div>
+                    <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Annual Loss</p>
+                    <p class="text-sm text-gray-500 leading-relaxed">Cost of congestion including fuel waste, lost
+                        productivity, and healthcare.</p>
+                    <div class="mt-6 pt-4 border-t border-white/5">
+                        <div class="flex items-center gap-2 text-xs text-green-400">
+                            <i class="fas fa-city"></i>
+                            <span>Top 10 Indian metros</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card p-8 reveal" style="animation-delay: 0.4s;">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center">
+                            <i class="fas fa-cloud text-2xl text-purple-500"></i>
+                        </div>
+                        <span
+                            class="text-[9px] mono-font text-gray-600 bg-white/5 px-3 py-1 rounded-full">EMISSION</span>
+                    </div>
+                    <div class="stat-number mb-2"
+                        style="background: linear-gradient(135deg, #fff 0%, #a855f7 100%); -webkit-background-clip: text;">
+                        <span class="counter" data-target="14">0</span>%
+                    </div>
+                    <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Transport CO₂</p>
+                    <p class="text-sm text-gray-500 leading-relaxed">Share of India's total carbon emissions from road
+                        transport alone.</p>
+                    <div class="mt-6 pt-4 border-t border-white/5">
+                        <div class="flex items-center gap-2 text-xs text-purple-400">
+                            <i class="fas fa-arrow-trend-up"></i>
+                            <span>Growing 6% annually</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Pollution Trend Chart -->
+        <section class="px-6 lg:px-12 max-w-7xl mx-auto mb-32">
+            <div class="grid lg:grid-cols-2 gap-12">
+
+                <div class="stat-card p-8 reveal">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 class="text-xl font-bold brand-font mb-2">Annual Mortality Trend</h3>
+                            <p class="text-sm text-gray-500">Air pollution deaths in millions (India)</p>
+                        </div>
+                        <span
+                            class="text-[9px] mono-font text-gray-600 bg-white/5 px-3 py-1 rounded-full">2018-2024</span>
+                    </div>
+
+                    <div class="chart-container" id="mortality-chart">
+                        <div class="chart-bar" style="height: 55%;" data-value="1.2M" data-year="2018"></div>
+                        <div class="chart-bar" style="height: 62%;" data-value="1.3M" data-year="2019"></div>
+                        <div class="chart-bar" style="height: 58%;" data-value="1.25M" data-year="2020"></div>
+                        <div class="chart-bar" style="height: 70%;" data-value="1.4M" data-year="2021"></div>
+                        <div class="chart-bar" style="height: 78%;" data-value="1.5M" data-year="2022"></div>
+                        <div class="chart-bar" style="height: 85%;" data-value="1.55M" data-year="2023"></div>
+                        <div class="chart-bar" style="height: 95%;" data-value="1.6M" data-year="2024"></div>
+                    </div>
+
+                    <div class="flex justify-between mt-4 text-[10px] mono-font text-gray-600">
+                        <span>2018</span>
+                        <span>2019</span>
+                        <span>2020</span>
+                        <span>2021</span>
+                        <span>2022</span>
+                        <span>2023</span>
+                        <span>2024</span>
+                    </div>
+                </div>
+
+                <div class="stat-card p-8 reveal" style="animation-delay: 0.2s;">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 class="text-xl font-bold brand-font mb-2">Emission Sources</h3>
+                            <p class="text-sm text-gray-500">Transport sector breakdown</p>
+                        </div>
+                        <span class="text-[9px] mono-font text-gray-600 bg-white/5 px-3 py-1 rounded-full">2024</span>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center">
+                                        <i class="fas fa-car text-red-500 text-sm"></i>
+                                    </div>
+                                    <span class="text-sm font-medium">Personal Vehicles</span>
+                                </div>
+                                <span class="text-red-400 font-bold mono-font">42%</span>
+                            </div>
+                            <div class="danger-bar">
+                                <div class="danger-bar-fill bg-gradient-to-r from-red-600 to-red-400"
+                                    style="width: 42%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                                        <i class="fas fa-truck text-amber-500 text-sm"></i>
+                                    </div>
+                                    <span class="text-sm font-medium">Commercial Freight</span>
+                                </div>
+                                <span class="text-amber-400 font-bold mono-font">31%</span>
+                            </div>
+                            <div class="danger-bar">
+                                <div class="danger-bar-fill bg-gradient-to-r from-amber-600 to-amber-400"
+                                    style="width: 31%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                                        <i class="fas fa-bus text-blue-500 text-sm"></i>
+                                    </div>
+                                    <span class="text-sm font-medium">Public Transport</span>
+                                </div>
+                                <span class="text-blue-400 font-bold mono-font">18%</span>
+                            </div>
+                            <div class="danger-bar">
+                                <div class="danger-bar-fill bg-gradient-to-r from-blue-600 to-blue-400"
+                                    style="width: 18%;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                                        <i class="fas fa-motorcycle text-purple-500 text-sm"></i>
+                                    </div>
+                                    <span class="text-sm font-medium">Two-Wheelers</span>
+                                </div>
+                                <span class="text-purple-400 font-bold mono-font">9%</span>
+                            </div>
+                            <div class="danger-bar">
+                                <div class="danger-bar-fill bg-gradient-to-r from-purple-600 to-purple-400"
+                                    style="width: 9%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- The Problem Breakdown -->
+        <section class="px-6 lg:px-12 max-w-7xl mx-auto mb-32">
+            <div class="text-center mb-16 reveal">
+                <span class="text-[10px] mono-font text-red-500 uppercase tracking-[0.5em] block mb-4">Root Cause
+                    Analysis</span>
+                <h2 class="text-3xl md:text-5xl font-bold brand-font">The "Blind" Infrastructure</h2>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+
+                <div class="stat-card p-8 reveal" style="animation-delay: 0.1s;">
+                    <div class="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mb-6 relative">
+                        <i class="fas fa-clock text-3xl text-red-500"></i>
+                        <div class="pulse-ring"></div>
+                    </div>
+                    <h3 class="text-xl font-bold brand-font mb-4">Static Timers</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed mb-6">
+                        Traditional signals operate on fixed cycles, completely blind to real-time traffic conditions. A
+                        60-second red light stays 60 seconds whether there are 100 cars or zero.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span
+                            class="px-3 py-1 bg-red-500/10 text-red-400 text-[10px] rounded-full uppercase tracking-wider">No
+                            Adaptation</span>
+                        <span
+                            class="px-3 py-1 bg-red-500/10 text-red-400 text-[10px] rounded-full uppercase tracking-wider">Wasted
+                            Time</span>
+                    </div>
+                </div>
+
+                <div class="stat-card p-8 reveal" style="animation-delay: 0.2s;">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-6 relative">
+                        <i class="fas fa-ghost text-3xl text-amber-500"></i>
+                        <div class="pulse-ring" style="border-color: var(--warning-amber);"></div>
+                    </div>
+                    <h3 class="text-xl font-bold brand-font mb-4">Phantom Jams</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed mb-6">
+                        Traffic bottlenecks that appear with no visible cause. Created by ripple effects from poorly
+                        timed signals miles away, wasting millions of hours annually.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span
+                            class="px-3 py-1 bg-amber-500/10 text-amber-400 text-[10px] rounded-full uppercase tracking-wider">Chain
+                            Reaction</span>
+                        <span
+                            class="px-3 py-1 bg-amber-500/10 text-amber-400 text-[10px] rounded-full uppercase tracking-wider">Invisible
+                            Cause</span>
+                    </div>
+                </div>
+
+                <div class="stat-card p-8 reveal" style="animation-delay: 0.3s;">
+                    <div class="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-6 relative">
+                        <i class="fas fa-database text-3xl text-purple-500"></i>
+                        <div class="pulse-ring" style="border-color: var(--critical-purple);"></div>
+                    </div>
+                    <h3 class="text-xl font-bold brand-font mb-4">Data Silos</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed mb-6">
+                        Traffic, pollution, and emergency systems don't communicate. Each intersection operates in
+                        isolation, unable to coordinate for system-wide optimization.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span
+                            class="px-3 py-1 bg-purple-500/10 text-purple-400 text-[10px] rounded-full uppercase tracking-wider">No
+                            Integration</span>
+                        <span
+                            class="px-3 py-1 bg-purple-500/10 text-purple-400 text-[10px] rounded-full uppercase tracking-wider">Zero
+                            Coordination</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Comparison: Current vs Green-Pulse -->
+        <section class="px-6 lg:px-12 max-w-7xl mx-auto mb-32">
+            <div class="stat-card p-10 reveal">
+                <div class="flex items-center justify-between mb-10">
+                    <div>
+                        <h3 class="text-2xl font-bold brand-font mb-2">System Comparison</h3>
+                        <p class="text-sm text-gray-500">Current infrastructure vs Green-Pulse solution</p>
+                    </div>
+                    <span class="text-[9px] mono-font text-gray-600 bg-white/5 px-4 py-2 rounded-full">ANALYSIS</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr class="border-b border-white/10">
+                                <th class="text-left">Metric</th>
+                                <th class="text-center">
+                                    <span class="text-red-400">Current System</span>
+                                </th>
+                                <th class="text-center">
+                                    <span class="text-emerald-400">Green-Pulse</span>
+                                </th>
+                                <th class="text-right">Improvement</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <tr>
+                                <td class="font-medium">Average Wait Time</td>
+                                <td class="text-center text-red-400 mono-font">87 seconds</td>
+                                <td class="text-center text-emerald-400 mono-font">23 seconds</td>
+                                <td class="text-right text-emerald-400 font-bold">-73%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">Daily CO₂ per Junction</td>
+                                <td class="text-center text-red-400 mono-font">2.4 tons</td>
+                                <td class="text-center text-emerald-400 mono-font">0.8 tons</td>
+                                <td class="text-right text-emerald-400 font-bold">-67%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">Emergency Response Time</td>
+                                <td class="text-center text-red-400 mono-font">14 minutes</td>
+                                <td class="text-center text-emerald-400 mono-font">6 minutes</td>
+                                <td class="text-right text-emerald-400 font-bold">-57%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">Fuel Wasted (Idling)</td>
+                                <td class="text-center text-red-400 mono-font">+30%</td>
+                                <td class="text-center text-emerald-400 mono-font">+4%</td>
+                                <td class="text-right text-emerald-400 font-bold">-87%</td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">System Response</td>
+                                <td class="text-center text-red-400">Reactive</td>
+                                <td class="text-center text-emerald-400">Predictive</td>
+                                <td class="text-right text-emerald-400 font-bold">AI-Driven</td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">Inter-Junction Communication</td>
+                                <td class="text-center text-red-400">None</td>
+                                <td class="text-center text-emerald-400">Real-time Mesh</td>
+                                <td class="text-right text-emerald-400 font-bold">∞</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Health Impact Timeline -->
+        <section class="px-6 lg:px-12 max-w-7xl mx-auto mb-32">
+            <div class="grid lg:grid-cols-2 gap-16 items-start">
+
+                <div class="reveal">
+                    <span class="text-[10px] mono-font text-red-500 uppercase tracking-[0.5em] block mb-4">Health
+                        Impact</span>
+                    <h2 class="text-3xl md:text-4xl font-bold brand-font mb-8">The Cascade Effect</h2>
+                    <p class="text-gray-400 text-lg leading-relaxed mb-8">
+                        From a single inefficient traffic light to widespread health crisis—the chain reaction is
+                        devastating and largely invisible to the public eye.
+                    </p>
+
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <span class="text-[10px] mono-font text-gray-600 uppercase tracking-widest">Stage 1</span>
+                            <h4 class="text-lg font-bold mt-2 mb-2">Static Signal Delay</h4>
+                            <p class="text-sm text-gray-500">Vehicles idle at red lights for 60+ seconds regardless of
+                                actual traffic.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="text-[10px] mono-font text-gray-600 uppercase tracking-widest">Stage 2</span>
+                            <h4 class="text-lg font-bold mt-2 mb-2">Localized Emission Spike</h4>
+                            <p class="text-sm text-gray-500">Idling vehicles emit concentrated pollutants at
+                                intersection zones.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="text-[10px] mono-font text-gray-600 uppercase tracking-widest">Stage 3</span>
+                            <h4 class="text-lg font-bold mt-2 mb-2">Community Exposure</h4>
+                            <p class="text-sm text-gray-500">Nearby residents, schools, and hospitals inhale toxic air
+                                daily.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="text-[10px] mono-font text-red-500 uppercase tracking-widest">Stage 4</span>
+                            <h4 class="text-lg font-bold mt-2 mb-2 text-red-400">Chronic Health Crisis</h4>
+                            <p class="text-sm text-gray-500">Long-term exposure leads to respiratory disease, cancer,
+                                and premature death.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reveal" style="animation-delay: 0.2s;">
+                    <div class="stat-card p-8">
+                        <h3 class="text-xl font-bold brand-font mb-6">Most Affected Groups</h3>
+
+                        <div class="space-y-4">
+                            <div class="impact-card flex items-center gap-4">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-baby text-red-500"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold mb-1">Children (0-14)</h4>
+                                    <p class="text-xs text-gray-500">Developing lungs are 3x more susceptible to PM2.5
+                                        damage</p>
+                                </div>
+                                <span class="text-red-400 font-bold mono-font">+340%</span>
+                            </div>
+
+                            <div class="impact-card flex items-center gap-4">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-person-cane text-amber-500"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold mb-1">Elderly (65+)</h4>
+                                    <p class="text-xs text-gray-500">Weakened immune systems face higher mortality risk
+                                    </p>
+                                </div>
+                                <span class="text-amber-400 font-bold mono-font">+280%</span>
+                            </div>
+
+                            <div class="impact-card flex items-center gap-4">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-lungs text-purple-500"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold mb-1">Respiratory Patients</h4>
+                                    <p class="text-xs text-gray-500">Existing conditions severely aggravated by
+                                        pollution</p>
+                                </div>
+                                <span class="text-purple-400 font-bold mono-font">+420%</span>
+                            </div>
+
+                            <div class="impact-card flex items-center gap-4">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-person-biking text-blue-500"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold mb-1">Street Workers</h4>
+                                    <p class="text-xs text-gray-500">Traffic police, vendors, and commuters with
+                                        prolonged exposure</p>
+                                </div>
+                                <span class="text-blue-400 font-bold mono-font">+190%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card p-8 mt-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-bold brand-font">Real-Time Hospitalizations</h3>
+                            <span
+                                class="text-[9px] mono-font text-red-400 bg-red-500/10 px-3 py-1 rounded-full flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                                LIVE
+                            </span>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-5xl font-black brand-font text-red-400 mb-2">
+                                <span class="counter" data-target="847">0</span>
+                            </div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">Respiratory cases today in Delhi
+                                NCR</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="px-6 lg:px-12 max-w-7xl mx-auto">
+            <div
+                class="stat-card p-12 md:p-16 text-center reveal border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
+                <span class="text-[10px] mono-font text-emerald-400 uppercase tracking-[0.5em] block mb-6">The Solution
+                    Exists</span>
+                <h2 class="text-3xl md:text-5xl font-bold brand-font mb-6">
+                    Transform Crisis Into <span class="text-emerald-400">Opportunity</span>
+                </h2>
+                <p class="text-gray-400 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+                    Green-Pulse's AI-powered traffic management can reduce emissions by 30%, cut wait times by 42%,
+                    and save millions of lives. The technology is ready. The time is now.
+                </p>
+
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="simulation.html"
+                        class="px-10 py-4 bg-emerald-500 text-black rounded-full font-bold text-sm uppercase tracking-wider hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/30 flex items-center gap-2">
+                        <i class="fas fa-play"></i>
+                        Launch DQN Simulation
+                    </a>
+                    <a href="tech.html"
+                        class="px-10 py-4 border border-emerald-500/30 text-emerald-400 rounded-full font-bold text-sm uppercase tracking-wider hover:bg-emerald-500/10 transition-all flex items-center gap-2">
+                        <i class="fas fa-brain"></i>
+                        Explore Technology
+                    </a>
+                </div>
+
+                <div class="flex justify-center gap-8 mt-12 pt-8 border-t border-white/5">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold brand-font text-emerald-400">-30%</div>
+                        <div class="text-xs text-gray-500 mt-1">Emissions</div>
+                    </div>
+                    <div class="w-px bg-white/10"></div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold brand-font text-emerald-400">-42%</div>
+                        <div class="text-xs text-gray-500 mt-1">Wait Time</div>
+                    </div>
+                    <div class="w-px bg-white/10"></div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold brand-font text-emerald-400">1.6M</div>
+                        <div class="text-xs text-gray-500 mt-1">Lives Saved</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-32 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 py-12">
+            <div class="flex flex-wrap justify-between items-center gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+                        <i class="fas fa-triangle-exclamation text-red-500"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold brand-font block">CRISIS_REPORT</span>
+                        <span class="text-[9px] mono-font text-gray-500">Green-Pulse Impact Analysis</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-8 text-[10px] mono-font text-gray-500 uppercase tracking-wider">
+                    <span>Data Sources: WHO, CPCB, IQAir</span>
+                    <span class="text-white/20">|</span>
+                    <span>Team: <span class="text-white">Underdogs</span></span>
+                    <span class="text-white/20">|</span>
+                    <span>Last Updated: <span class="text-white" id="update-time">Loading...</span></span>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <a href="index.html"
+                        class="px-6 py-2 border border-white/10 rounded-full text-xs uppercase tracking-wider hover:border-red-500 hover:text-red-400 hover:bg-red-500/10 transition">
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Preloader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('preloader').classList.add('hidden');
+            }, 1800);
+        });
+
+        // Custom Cursor
+        const dot = document.getElementById("cursor-dot");
+        const outline = document.getElementById("cursor-outline");
+
+        document.addEventListener("mousemove", (e) => {
+            const { clientX: x, clientY: y } = e;
+            dot.style.left = x + "px";
+            dot.style.top = y + "px";
+            outline.animate({ left: x + "px", top: y + "px" }, { duration: 400, fill: "forwards" });
+        });
+
+        document.querySelectorAll('a, button, .stat-card, .impact-card').forEach(el => {
+            el.addEventListener('mouseenter', () => outline.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => outline.classList.remove('hovering'));
+        });
+
+        // Generate Particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (12 + Math.random() * 10) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        // Counter Animation
+        const counters = document.querySelectorAll('.counter');
+        const animateCounter = (counter) => {
+            const target = parseFloat(counter.getAttribute('data-target'));
+            const duration = 2000;
+            const start = performance.now();
+
+            const update = (currentTime) => {
+                const elapsed = currentTime - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+
+                let current = target * easeOut;
+
+                if (target >= 100) {
+                    counter.textContent = Math.round(current);
+                } else if (target >= 10) {
+                    counter.textContent = current.toFixed(1);
+                } else {
+                    counter.textContent = current.toFixed(1);
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    counter.textContent = target;
+                }
+            };
+
+            requestAnimationFrame(update);
+        };
+
+        // Scroll Reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+
+                    // Trigger counters within revealed elements
+                    entry.target.querySelectorAll('.counter').forEach(counter => {
+                        if (!counter.classList.contains('animated')) {
+                            counter.classList.add('animated');
+                            setTimeout(() => animateCounter(counter), 300);
+                        }
+                    });
+                }
+            });
+        }, { threshold: 0.1 });
+
+        reveals.forEach(reveal => revealObserver.observe(reveal));
+
+        // Chart bar animations
+        const chartBars = document.querySelectorAll('.chart-bar');
+        chartBars.forEach((bar, index) => {
+            bar.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Update timestamp
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+            document.getElementById('update-time').textContent = timeStr;
+        }
+        updateTime();
+        setInterval(updateTime, 60000);
+
+        // Live counter updates
+        setInterval(() => {
+            const hospitalizations = document.querySelector('[data-target="847"]');
+            if (hospitalizations && hospitalizations.classList.contains('animated')) {
+                const current = parseInt(hospitalizations.textContent);
+                const newVal = current + (Math.random() > 0.5 ? 1 : 0);
+                hospitalizations.textContent = newVal;
+            }
+        }, 3000);
+
+        // 3D Card Tilt & Mouse Tracking
+        document.querySelectorAll('.data-card, .glass-panel, .crisis-card').forEach(card => {
+            card.style.transformStyle = 'preserve-3d';
+            card.style.perspective = '1000px';
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((centerY - y) / centerY) * 10;
+                const rotateY = ((x - centerX) / centerX) * 10;
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+
+                const percentX = (x / rect.width) * 100;
+                const percentY = (y / rect.height) * 100;
+                card.style.setProperty('--mouse-x', percentX + '%');
+                card.style.setProperty('--mouse-y', percentY + '%');
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            });
+
+            // Add depth to inner elements
+            const innerElements = card.querySelectorAll('i, h3, h4, .text-4xl, .stat-value');
+            innerElements.forEach(el => {
+                el.style.transform = 'translateZ(30px)';
+                el.style.transition = 'transform 0.3s ease-out';
+            });
+        });
+    </script>
+</body>
+
+</html>

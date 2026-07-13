@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green-Pulse | Neural Architecture - AI/ML Core</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --purple: #a855f7;
+            --purple-light: #c084fc;
+            --purple-dark: #7c3aed;
+            --cyan: #22d3ee;
+            --neon: #00ff9d;
+            --pink: #ec4899;
+            --bg: #050508;
+            --bg-secondary: #0a0a0f;
+            --glass: rgba(255, 255, 255, 0.02);
+            --border: rgba(168, 85, 247, 0.15);
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--purple) transparent;
+        }
+
+        *::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: var(--purple);
+            border-radius: 3px;
+        }
+
+        body {
+            background: var(--bg);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        .brand-font {
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 30px;
+            transition: opacity 0.6s, visibility 0.6s;
+        }
+
+        #preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .neural-loader {
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+
+        .neural-loader .node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--purple);
+            border-radius: 50%;
+            animation: neural-pulse 1.5s infinite;
+        }
+
+        .neural-loader .node:nth-child(1) {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            animation-delay: 0s;
+        }
+
+        .neural-loader .node:nth-child(2) {
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            animation-delay: 0.2s;
+        }
+
+        .neural-loader .node:nth-child(3) {
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            animation-delay: 0.4s;
+        }
+
+        .neural-loader .node:nth-child(4) {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            animation-delay: 0.6s;
+        }
+
+        .neural-loader .node:nth-child(5) {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 0.3s;
+            background: var(--cyan);
+        }
+
+        @keyframes neural-pulse {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+                box-shadow: 0 0 20px var(--purple);
+            }
+        }
+
+        .loader-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--purple);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Background Effects */
+        .neural-grid {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .neural-grid svg {
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+        }
+
+        .grid-pattern {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(168, 85, 247, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(168, 85, 247, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 60% 50% at 50% 30%, black 20%, transparent 100%);
+            z-index: -1;
+        }
+
+        .glow-orbs {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: float-orb 25s infinite ease-in-out;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.4), transparent 70%);
+            top: 10%;
+            left: 5%;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.3), transparent 70%);
+            top: 50%;
+            right: 5%;
+            animation-delay: -10s;
+        }
+
+        .orb-3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.2), transparent 70%);
+            bottom: 10%;
+            left: 40%;
+            animation-delay: -5s;
+        }
+
+        @keyframes float-orb {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            25% {
+                transform: translate(50px, -30px) scale(1.1);
+            }
+
+            50% {
+                transform: translate(-30px, 40px) scale(0.9);
+            }
+
+            75% {
+                transform: translate(40px, 20px) scale(1.05);
+            }
+        }
+
+        /* Custom Cursor */
+        #cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--purple);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 20px var(--purple);
+            transition: transform 0.15s, background 0.3s;
+        }
+
+        #cursor-dot.hovering {
+            transform: translate(-50%, -50%) scale(1.5);
+            background: var(--cyan);
+        }
+
+        #cursor-outline {
+            position: fixed;
+            width: 44px;
+            height: 44px;
+            border: 1.5px solid rgba(168, 85, 247, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        #cursor-outline.hovering {
+            width: 64px;
+            height: 64px;
+            border-color: var(--cyan);
+            background: rgba(34, 211, 238, 0.1);
+        }
+
+        /* Glass Panels */
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.5), transparent);
+            opacity: 0.5;
+        }
+
+        .glass-panel:hover {
+            border-color: var(--purple);
+            box-shadow: 0 0 40px rgba(168, 85, 247, 0.1);
+        }
+
+        /* Purple Gradient Text */
+        .purple-gradient {
+            background: linear-gradient(135deg, var(--purple-light) 0%, var(--purple) 50%, var(--pink) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 4s linear infinite;
+        }
+
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        .purple-glow {
+            color: var(--purple);
+            text-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.3);
+        }
+
+        /* Code Block */
+        .code-block {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .code-header {
+            background: rgba(168, 85, 247, 0.1);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.1);
+        }
+
+        .code-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .code-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .code-body {
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .code-line {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        .line-number {
+            color: #555;
+            min-width: 24px;
+            text-align: right;
+            user-select: none;
+        }
+
+        .code-content {
+            flex: 1;
+        }
+
+        .code-keyword {
+            color: var(--purple);
+        }
+
+        .code-function {
+            color: var(--cyan);
+        }
+
+        .code-string {
+            color: var(--neon);
+        }
+
+        .code-number {
+            color: var(--pink);
+        }
+
+        .code-comment {
+            color: #666;
+            font-style: italic;
+        }
+
+        .code-operator {
+            color: #888;
+        }
+
+        .code-variable {
+            color: #fff;
+        }
+
+        /* Architecture Diagram */
+        .architecture-container {
+            position: relative;
+            padding: 60px;
+            min-height: 500px;
+        }
+
+        .arch-node {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--purple);
+            border-radius: 16px;
+            padding: 20px;
+            min-width: 140px;
+            text-align: center;
+            transition: all 0.4s;
+            z-index: 10;
+        }
+
+        .arch-node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
+            z-index: 20;
+        }
+
+        .arch-node.central {
+            border-color: var(--cyan);
+            background: rgba(34, 211, 238, 0.1);
+        }
+
+        .arch-node.input {
+            border-color: var(--neon);
+            background: rgba(0, 255, 157, 0.05);
+        }
+
+        .arch-node.output {
+            border-color: var(--pink);
+            background: rgba(236, 72, 153, 0.05);
+        }
+
+        .arch-node-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(168, 85, 247, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+        }
+
+        .arch-node.central .arch-node-icon {
+            background: rgba(34, 211, 238, 0.2);
+        }
+
+        .arch-node.input .arch-node-icon {
+            background: rgba(0, 255, 157, 0.2);
+        }
+
+        .arch-node.output .arch-node-icon {
+            background: rgba(236, 72, 153, 0.2);
+        }
+
+        .arch-node-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .arch-node-subtitle {
+            font-size: 9px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Connection Lines */
+        .arch-connections {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+        }
+
+        .arch-connections svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .arch-line {
+            stroke: var(--purple);
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.3;
+            stroke-dasharray: 8, 4;
+            animation: dash 20s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -100;
+            }
+        }
+
+        /* Feature Cards */
+        .feature-card {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(34, 211, 238, 0.02) 100%);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(168, 85, 247, 0.15), transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            border-color: var(--purple);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(168, 85, 247, 0.15);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--purple) 0%, var(--purple-dark) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .feature-icon::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border: 1px solid var(--purple);
+            border-radius: 20px;
+            opacity: 0.3;
+        }
+
+        /* Algorithm Cards */
+        .algo-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .algo-card:hover {
+            background: rgba(168, 85, 247, 0.1);
+            border-color: rgba(168, 85, 247, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .algo-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--purple);
+            margin-bottom: 8px;
+        }
+
+        .algo-desc {
+            font-size: 11px;
+            color: #888;
+        }
+
+        /* Metric Display */
+        .metric-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .metric-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Training Pipeline */
+        .pipeline-step {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+        }
+
+        .pipeline-step:hover {
+            background: rgba(168, 85, 247, 0.05);
+            border-color: rgba(168, 85, 247, 0.2);
+        }
+
+        .pipeline-number {
+            width: 40px;
+            height: 40px;
+            background: var(--purple);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #000;
+            flex-shrink: 0;
+        }
+
+        .pipeline-arrow {
+            width: 2px;
+            height: 30px;
+            background: linear-gradient(to bottom, var(--purple), transparent);
+            margin: -10px 0 -10px 19px;
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+
+            #cursor-dot,
+            #cursor-outline {
+                display: none;
+            }
+
+            body {
+                cursor: auto;
+            }
+
+            .architecture-container {
+                display: none;
+            }
+
+            .arch-mobile {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 3rem !important;
+            }
+        }
+
+        .arch-mobile {
+            display: none;
+        }
+
+        /* Typing Animation */
+        .typing-cursor {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* Neural Animation */
+        .neural-pulse {
+            animation: neural-glow 3s infinite;
+        }
+
+        @keyframes neural-glow {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 5px var(--purple));
+            }
+
+            50% {
+                filter: drop-shadow(0 0 20px var(--purple));
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="neural-loader">
+            <div class="node"></div>
+            <div class="node"></div>
+            <div class="node"></div>
+            <div class="node"></div>
+            <div class="node"></div>
+        </div>
+        <div class="loader-text">Loading Neural Core</div>
+    </div>
+
+    <!-- Cursors -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+
+    <!-- Background Effects -->
+    <div class="grid-pattern"></div>
+    <div class="glow-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Neural Network Background -->
+    <div class="neural-grid">
+        <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <radialGradient id="nodeGrad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" style="stop-color:#a855f7;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#a855f7;stop-opacity:0" />
+                </radialGradient>
+            </defs>
+            <!-- Neural connections will be generated by JS -->
+            <g id="neural-connections"></g>
+            <g id="neural-nodes"></g>
+        </svg>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 px-6 lg:px-12 py-5 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-4 group">
+                <div
+                    class="w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/20 transition">
+                    <i class="fas fa-arrow-left text-purple-400"></i>
+                </div>
+                <div>
+                    <span class="brand-font font-semibold text-base block">NEURAL CORE</span>
+                    <span class="mono text-[9px] text-gray-500 tracking-wider">ARCHITECTURE v3.0</span>
+                </div>
+            </a>
+
+            <div class="hidden lg:flex items-center gap-6">
+                <a href="index.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Home</a>
+                <a href="crisis.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Crisis</a>
+                <a href="simulation.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Sandbox</a>
+                <a href="tech.html"
+                    class="text-xs uppercase tracking-wider text-purple-400 font-bold transition">Tech</a>
+                <a href="business.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Business</a>
+                <a href="roadmap.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Roadmap</a>
+            </div>
+
+            <a href="simulation.html"
+                class="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-purple-500/10 border border-purple-500/30 text-purple-400 rounded-full hover:bg-purple-500 hover:text-white transition-all text-xs font-semibold uppercase tracking-wider">
+                <i class="fas fa-play"></i>
+                Launch DQN Demo
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-32 pb-32">
+
+        <!-- Hero Section -->
+        <section class="px-6 lg:px-12 max-w-6xl mx-auto mb-32">
+            <div class="reveal">
+                <div
+                    class="inline-flex items-center gap-3 px-5 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full mb-8">
+                    <i class="fas fa-brain text-purple-400 text-sm"></i>
+                    <span class="text-purple-400 text-[11px] font-semibold tracking-[0.3em] uppercase mono">Multi-Agent
+                        Reinforcement Learning</span>
+                </div>
+
+                <h1 class="hero-title text-5xl md:text-7xl lg:text-8xl font-bold brand-font leading-[0.95] mb-8">
+                    THE BRAIN OF<br>
+                    <span class="purple-gradient">THE GRID</span>
+                </h1>
+
+                <p class="text-lg md:text-xl text-gray-400 max-w-2xl font-light leading-relaxed mb-12">
+                    Moving beyond simple "If-Then" logic to <span class="text-white font-medium">Autonomous
+                        Decision-making</span>.
+                    Green-Pulse treats the city as a dynamic environment where every traffic signal is a learning agent.
+                </p>
+
+                <!-- Quick Stats -->
+                <div class="flex flex-wrap gap-4">
+                    <div class="metric-pill">
+                        <span class="metric-dot bg-purple-400"></span>
+                        <span class="text-purple-400">8 Cooperative Agents</span>
+                    </div>
+                    <div class="metric-pill">
+                        <span class="metric-dot bg-cyan-400"></span>
+                        <span class="text-cyan-400">12ms Sync Latency</span>
+                    </div>
+                    <div class="metric-pill">
+                        <span class="metric-dot bg-green-400"></span>
+                        <span class="text-green-400">4.2M Parameters</span>
+                    </div>
+                    <div class="metric-pill">
+                        <span class="metric-dot bg-pink-400"></span>
+                        <span class="text-pink-400">98.2% Consensus Rate</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Algorithm -->
+        <section class="px-6 lg:px-12 max-w-6xl mx-auto mb-32">
+            <div class="grid lg:grid-cols-2 gap-8">
+
+                <!-- Multi-Objective Reward Function -->
+                <div class="glass-panel p-8 reveal">
+                    <div class="flex items-center gap-3 mb-8">
+                        <div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-function text-purple-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="brand-font font-semibold">Multi-Objective Reward</h3>
+                            <span class="text-[10px] text-gray-500 uppercase tracking-wider">Core Optimization
+                                Function</span>
+                        </div>
+                    </div>
+
+                    <div class="code-block mb-6">
+                        <div class="code-header">
+                            <div class="code-dots">
+                                <div class="code-dot bg-red-500"></div>
+                                <div class="code-dot bg-yellow-500"></div>
+                                <div class="code-dot bg-green-500"></div>
+                            </div>
+                            <span class="mono text-[10px] text-gray-500">reward_function.py</span>
+                        </div>
+                        <div class="code-body mono text-xs">
+                            <div class="code-line">
+                                <span class="line-number">1</span>
+                                <span class="code-content">
+                                    <span class="code-keyword">def</span> <span
+                                        class="code-function">compute_reward</span>(<span
+                                        class="code-variable">state</span>):
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">2</span>
+                                <span class="code-content">
+                                    <span class="code-comment"> # Multi-objective optimization</span>
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">3</span>
+                                <span class="code-content">
+                                    <span class="code-variable"> R</span> <span class="code-operator">=</span> <span
+                                        class="code-operator">-</span>(
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">4</span>
+                                <span class="code-content">
+                                    <span class="code-variable"> α</span> <span class="code-operator">*</span> <span
+                                        class="code-function">wait_time</span>(<span class="code-variable">state</span>)
+                                    <span class="code-operator">+</span>
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">5</span>
+                                <span class="code-content">
+                                    <span class="code-variable"> β</span> <span class="code-operator">*</span> <span
+                                        class="code-function">co2_emissions</span>(<span
+                                        class="code-variable">state</span>) <span class="code-operator">+</span>
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">6</span>
+                                <span class="code-content">
+                                    <span class="code-variable"> γ</span> <span class="code-operator">*</span> <span
+                                        class="code-function">safety_variance</span>(<span
+                                        class="code-variable">state</span>)
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">7</span>
+                                <span class="code-content">
+                                    <span class="code-operator"> )</span>
+                                </span>
+                            </div>
+                            <div class="code-line">
+                                <span class="line-number">8</span>
+                                <span class="code-content">
+                                    <span class="code-keyword"> return</span> <span class="code-variable">R</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="text-center p-3 bg-cyan-500/10 rounded-xl border border-cyan-500/20">
+                            <span class="mono text-lg font-bold text-cyan-400">α = 0.45</span>
+                            <p class="text-[9px] text-gray-500 uppercase mt-1">Wait Time</p>
+                        </div>
+                        <div class="text-center p-3 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                            <span class="mono text-lg font-bold text-amber-400">β = 0.35</span>
+                            <p class="text-[9px] text-gray-500 uppercase mt-1">Emissions</p>
+                        </div>
+                        <div class="text-center p-3 bg-purple-500/10 rounded-xl border border-purple-500/20">
+                            <span class="mono text-lg font-bold text-purple-400">γ = 0.20</span>
+                            <p class="text-[9px] text-gray-500 uppercase mt-1">Safety</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MARL System -->
+                <div class="glass-panel p-8 reveal" style="animation-delay: 0.1s;">
+                    <div class="flex items-center gap-3 mb-8">
+                        <div class="w-10 h-10 bg-cyan-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-network-wired text-cyan-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="brand-font font-semibold">Multi-Agent System</h3>
+                            <span class="text-[10px] text-gray-500 uppercase tracking-wider">Cooperative RL
+                                Architecture</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div
+                            class="flex items-start gap-4 p-4 bg-black/30 rounded-xl border border-white/5 hover:border-purple-500/30 transition">
+                            <div
+                                class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-eye text-purple-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm mb-1">State Space</h4>
+                                <p class="text-xs text-gray-500">Real-time lane occupancy, vehicle velocity vectors,
+                                    pedestrian density maps, and queue lengths.</p>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex items-start gap-4 p-4 bg-black/30 rounded-xl border border-white/5 hover:border-cyan-500/30 transition">
+                            <div
+                                class="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-bolt text-cyan-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm mb-1">Action Space</h4>
+                                <p class="text-xs text-gray-500">Green phase extensions, cycle skipping,
+                                    pedestrian-priority modes, and emergency preemption.</p>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex items-start gap-4 p-4 bg-black/30 rounded-xl border border-white/5 hover:border-green-500/30 transition">
+                            <div
+                                class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-handshake text-green-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm mb-1">Consensus Protocol</h4>
+                                <p class="text-xs text-gray-500">Local agents coordinate with neighbors via message
+                                    passing to prevent localized bottlenecks.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- System Architecture -->
+        <section class="px-6 lg:px-12 max-w-6xl mx-auto mb-32">
+            <div class="text-center mb-16 reveal">
+                <span class="text-[10px] mono text-purple-400 uppercase tracking-[0.5em] block mb-4">System
+                    Design</span>
+                <h2 class="text-3xl md:text-5xl font-bold brand-font">Neural Architecture</h2>
+            </div>
+
+            <!-- Architecture Diagram -->
+            <div class="glass-panel relative reveal" style="min-height: 500px;">
+                <div class="architecture-container">
+                    <!-- SVG Connections -->
+                    <div class="arch-connections">
+                        <svg width="100%" height="100%">
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5"
+                                    orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#a855f7" opacity="0.5" />
+                                </marker>
+                            </defs>
+                            <!-- Lines will be drawn relative to container -->
+                            <line class="arch-line" x1="15%" y1="25%" x2="35%" y2="45%" marker-end="url(#arrowhead)" />
+                            <line class="arch-line" x1="15%" y1="75%" x2="35%" y2="55%" marker-end="url(#arrowhead)" />
+                            <line class="arch-line" x1="65%" y1="50%" x2="85%" y2="25%" marker-end="url(#arrowhead)" />
+                            <line class="arch-line" x1="65%" y1="50%" x2="85%" y2="75%" marker-end="url(#arrowhead)" />
+                        </svg>
+                    </div>
+
+                    <!-- Input Nodes -->
+                    <div class="arch-node input" style="left: 5%; top: 15%;">
+                        <div class="arch-node-icon">
+                            <i class="fas fa-camera text-green-400"></i>
+                        </div>
+                        <div class="arch-node-title text-green-400">Sensors</div>
+                        <div class="arch-node-subtitle">ITMS Data</div>
+                    </div>
+
+                    <div class="arch-node input" style="left: 5%; top: 65%;">
+                        <div class="arch-node-icon">
+                            <i class="fas fa-cloud text-green-400"></i>
+                        </div>
+                        <div class="arch-node-title text-green-400">Environment</div>
+                        <div class="arch-node-subtitle">AQI + Weather</div>
+                    </div>
+
+                    <!-- Central Processing -->
+                    <div class="arch-node central" style="left: 38%; top: 35%; min-width: 180px;">
+                        <div class="arch-node-icon">
+                            <i class="fas fa-brain text-cyan-400 text-xl"></i>
+                        </div>
+                        <div class="arch-node-title text-cyan-400">MARL Engine</div>
+                        <div class="arch-node-subtitle">PPO + DQN Hybrid</div>
+                        <div class="mt-3 flex justify-center gap-2">
+                            <span class="px-2 py-1 bg-cyan-500/20 rounded text-[8px] mono text-cyan-400">4.2M
+                                params</span>
+                        </div>
+                    </div>
+
+                    <!-- Output Nodes -->
+                    <div class="arch-node output" style="right: 5%; top: 15%;">
+                        <div class="arch-node-icon">
+                            <i class="fas fa-traffic-light text-pink-400"></i>
+                        </div>
+                        <div class="arch-node-title text-pink-400">Actions</div>
+                        <div class="arch-node-subtitle">Signal Control</div>
+                    </div>
+
+                    <div class="arch-node output" style="right: 5%; top: 65%;">
+                        <div class="arch-node-icon">
+                            <i class="fas fa-coins text-pink-400"></i>
+                        </div>
+                        <div class="arch-node-title text-pink-400">Rewards</div>
+                        <div class="arch-node-subtitle">Carbon Credits</div>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="absolute bottom-6 left-6 flex gap-6">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded bg-green-500"></div>
+                            <span class="text-[10px] text-gray-500">Input Layer</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded bg-cyan-500"></div>
+                            <span class="text-[10px] text-gray-500">Processing</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded bg-pink-500"></div>
+                            <span class="text-[10px] text-gray-500">Output Layer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Architecture -->
+                <div class="arch-mobile p-8">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 p-4 bg-green-500/10 rounded-xl border border-green-500/20">
+                            <i class="fas fa-camera text-green-400 text-xl"></i>
+                            <div>
+                                <div class="font-semibold text-green-400">Input Layer</div>
+                                <div class="text-xs text-gray-500">Sensors, ITMS, Environment Data</div>
+                            </div>
+                        </div>
+                        <div class="flex justify-center">
+                            <i class="fas fa-arrow-down text-purple-400"></i>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 bg-cyan-500/10 rounded-xl border border-cyan-500/20">
+                            <i class="fas fa-brain text-cyan-400 text-xl"></i>
+                            <div>
+                                <div class="font-semibold text-cyan-400">MARL Engine</div>
+                                <div class="text-xs text-gray-500">PPO + DQN Hybrid (4.2M params)</div>
+                            </div>
+                        </div>
+                        <div class="flex justify-center">
+                            <i class="fas fa-arrow-down text-purple-400"></i>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 bg-pink-500/10 rounded-xl border border-pink-500/20">
+                            <i class="fas fa-traffic-light text-pink-400 text-xl"></i>
+                            <div>
+                                <div class="font-semibold text-pink-400">Output Layer</div>
+                                <div class="text-xs text-gray-500">Signal Control, Carbon Credits</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Training Pipeline -->
+        <section class="px-6 lg:px-12 max-w-6xl mx-auto mb-32">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+                <div class="reveal">
+                    <span class="text-[10px] mono text-purple-400 uppercase tracking-[0.5em] block mb-4">Learning
+                        Process</span>
+                    <h2 class="text-3xl md:text-4xl font-bold brand-font mb-6">The Training Loop</h2>
+                    <p class="text-gray-400 leading-relaxed mb-8">
+                        Agents train within a high-fidelity <span class="text-white font-medium">Digital Twin
+                            Sandbox</span> powered by DQN and TensorFlow.js.
+                        They receive reward feedback, update neural weights via backpropagation, and refine policies
+                        without any real-world risk.
+                    </p>
+
+                    <!-- Algorithm Options -->
+                    <div class="grid grid-cols-3 gap-4 mb-8">
+                        <div class="algo-card">
+                            <div class="algo-name">PPO</div>
+                            <div class="algo-desc">Policy Gradient</div>
+                        </div>
+                        <div class="algo-card">
+                            <div class="algo-name">DQN</div>
+                            <div class="algo-desc">Value-Based</div>
+                        </div>
+                        <div class="algo-card">
+                            <div class="algo-name">A3C</div>
+                            <div class="algo-desc">Actor-Critic</div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-purple-500/10 rounded-xl border border-purple-500/20">
+                            <div class="text-2xl font-bold brand-font text-purple-400 mb-1">12ms</div>
+                            <div class="text-[10px] text-gray-500 uppercase tracking-wider">Inference Time</div>
+                        </div>
+                        <div class="p-4 bg-cyan-500/10 rounded-xl border border-cyan-500/20">
+                            <div class="text-2xl font-bold brand-font text-cyan-400 mb-1">50K</div>
+                            <div class="text-[10px] text-gray-500 uppercase tracking-wider">Episodes/Hour</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pipeline Steps -->
+                <div class="space-y-4 reveal" style="animation-delay: 0.2s;">
+                    <div class="pipeline-step">
+                        <div class="pipeline-number">1</div>
+                        <div>
+                            <h4 class="font-semibold mb-1">Observe State</h4>
+                            <p class="text-xs text-gray-500">Agent observes current traffic conditions from ITMS sensors
+                            </p>
+                        </div>
+                    </div>
+                    <div class="pipeline-arrow"></div>
+                    <div class="pipeline-step">
+                        <div class="pipeline-number">2</div>
+                        <div>
+                            <h4 class="font-semibold mb-1">Select Action</h4>
+                            <p class="text-xs text-gray-500">Neural network outputs optimal signal timing decision</p>
+                        </div>
+                    </div>
+                    <div class="pipeline-arrow"></div>
+                    <div class="pipeline-step">
+                        <div class="pipeline-number">3</div>
+                        <div>
+                            <h4 class="font-semibold mb-1">Execute & Observe</h4>
+                            <p class="text-xs text-gray-500">Action applied in Live Simulation, new state observed</p>
+                        </div>
+                    </div>
+                    <div class="pipeline-arrow"></div>
+                    <div class="pipeline-step">
+                        <div class="pipeline-number">4</div>
+                        <div>
+                            <h4 class="font-semibold mb-1">Compute Reward</h4>
+                            <p class="text-xs text-gray-500">Multi-objective reward calculated (wait, CO₂, safety)</p>
+                        </div>
+                    </div>
+                    <div class="pipeline-arrow"></div>
+                    <div class="pipeline-step">
+                        <div class="pipeline-number">5</div>
+                        <div>
+                            <h4 class="font-semibold mb-1">Update Policy</h4>
+                            <p class="text-xs text-gray-500">Backpropagation updates neural network weights</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Feature Cards -->
+        <section class="px-6 lg:px-12 max-w-6xl mx-auto mb-32">
+            <div class="text-center mb-16 reveal">
+                <span class="text-[10px] mono text-purple-400 uppercase tracking-[0.5em] block mb-4">Capabilities</span>
+                <h2 class="text-3xl md:text-5xl font-bold brand-font">Key Features</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="feature-card reveal" style="animation-delay: 0.1s;">
+                    <div class="feature-icon">
+                        <i class="fas fa-arrows-spin text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold brand-font mb-3">Transfer Learning</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed mb-4">
+                        Pre-trained policies transfer across cities with 90% less training time, enabling rapid
+                        deployment.
+                    </p>
+                    <div class="flex items-center gap-2 text-xs text-purple-400">
+                        <i class="fas fa-clock"></i>
+                        <span>90% faster deployment</span>
+                    </div>
+                </div>
+
+                <div class="feature-card reveal" style="animation-delay: 0.2s;">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #22d3ee, #0891b2);">
+                        <i class="fas fa-shield-halved text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold brand-font mb-3">Explainable AI (XAI)</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed mb-4">
+                        Every decision is transparent. Operators can audit why a specific action was taken in real-time.
+                    </p>
+                    <div class="flex items-center gap-2 text-xs text-cyan-400">
+                        <i class="fas fa-search"></i>
+                        <span>Full decision audit trail</span>
+                    </div>
+                </div>
+
+                <div class="feature-card reveal" style="animation-delay: 0.3s;">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #00ff9d, #059669);">
+                        <i class="fas fa-rotate text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold brand-font mb-3">Dynamic Adaptation</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed mb-4">
+                        Reward weights adjust automatically based on context—emission focus during smog alerts.
+                    </p>
+                    <div class="flex items-center gap-2 text-xs text-green-400">
+                        <i class="fas fa-bolt"></i>
+                        <span>Real-time weight tuning</span>
+                    </div>
+                </div>
+
+                <div class="feature-card reveal" style="animation-delay: 0.4s;">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <i class="fas fa-users text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold brand-font mb-3">Federated Learning</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed mb-4">
+                        Privacy-preserving training where raw data never leaves the edge—only gradients are shared.
+                    </p>
+                    <div class="flex items-center gap-2 text-xs text-amber-400">
+                        <i class="fas fa-lock"></i>
+                        <span>Privacy-first design</span>
+                    </div>
+                </div>
+
+                <div class="feature-card reveal" style="animation-delay: 0.5s;">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #ec4899, #be185d);">
+                        <i class="fas fa-truck-fast text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold brand-font mb-3">Emergency Preemption</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed mb-4">
+                        Automatic green corridors for ambulances and fire trucks with predictive path clearing.
+                    </p>
+                    <div class="flex items-center gap-2 text-xs text-pink-400">
+                        <i class="fas fa-ambulance"></i>
+                        <span>Priority vehicle support</span>
+                    </div>
+                </div>
+
+                <div class="feature-card reveal" style="animation-delay: 0.6s;">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #6366f1, #4338ca);">
+                        <i class="fas fa-cubes text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold brand-font mb-3">Digital Twin Sync</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed mb-4">
+                        Perfect parity between simulation and reality with continuous model calibration.
+                    </p>
+                    <div class="flex items-center gap-2 text-xs text-indigo-400">
+                        <i class="fas fa-sync"></i>
+                        <span>12ms sync latency</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Tech Stack -->
+        <section class="px-6 lg:px-12 max-w-6xl mx-auto mb-32">
+            <div class="glass-panel p-10 reveal">
+                <div class="text-center mb-12">
+                    <span class="text-[10px] mono text-purple-400 uppercase tracking-[0.5em] block mb-4">Technology
+                        Stack</span>
+                    <h2 class="text-2xl md:text-3xl font-bold brand-font">Built With Modern AI</h2>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                    <div
+                        class="text-center p-4 bg-black/30 rounded-xl border border-white/5 hover:border-purple-500/30 transition">
+                        <i class="fab fa-python text-3xl text-yellow-400 mb-3"></i>
+                        <div class="text-sm font-semibold">Python</div>
+                        <div class="text-[9px] text-gray-500">Core Language</div>
+                    </div>
+                    <div
+                        class="text-center p-4 bg-black/30 rounded-xl border border-white/5 hover:border-purple-500/30 transition">
+                        <i class="fas fa-fire text-3xl text-orange-400 mb-3"></i>
+                        <div class="text-sm font-semibold">PyTorch</div>
+                        <div class="text-[9px] text-gray-500">Deep Learning</div>
+                    </div>
+                    <div
+                        class="text-center p-4 bg-black/30 rounded-xl border border-white/5 hover:border-purple-500/30 transition">
+                        <i class="fas fa-car text-3xl text-green-400 mb-3"></i>
+                        <div class="text-sm font-semibold">TensorFlow.js</div>
+                        <div class="text-[9px] text-gray-500">Simulation</div>
+                    </div>
+                    <div
+                        class="text-center p-4 bg-black/30 rounded-xl border border-white/5 hover:border-purple-500/30 transition">
+                        <i class="fas fa-gamepad text-3xl text-blue-400 mb-3"></i>
+                        <div class="text-sm font-semibold">OpenAI Gym</div>
+                        <div class="text-[9px] text-gray-500">RL Framework</div>
+                    </div>
+                    <div
+                        class="text-center p-4 bg-black/30 rounded-xl border border-white/5 hover:border-purple-500/30 transition">
+                        <i class="fas fa-chart-line text-3xl text-purple-400 mb-3"></i>
+                        <div class="text-sm font-semibold">TensorBoard</div>
+                        <div class="text-[9px] text-gray-500">Monitoring</div>
+                    </div>
+                    <div
+                        class="text-center p-4 bg-black/30 rounded-xl border border-white/5 hover:border-purple-500/30 transition">
+                        <i class="fab fa-docker text-3xl text-cyan-400 mb-3"></i>
+                        <div class="text-sm font-semibold">Docker</div>
+                        <div class="text-[9px] text-gray-500">Deployment</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Code Example -->
+        <section class="px-6 lg:px-12 max-w-6xl mx-auto mb-32">
+            <div class="text-center mb-16 reveal">
+                <span
+                    class="text-[10px] mono text-purple-400 uppercase tracking-[0.5em] block mb-4">Implementation</span>
+                <h2 class="text-3xl md:text-4xl font-bold brand-font">Sample Agent Code</h2>
+            </div>
+
+            <div class="code-block reveal">
+                <div class="code-header">
+                    <div class="code-dots">
+                        <div class="code-dot bg-red-500"></div>
+                        <div class="code-dot bg-yellow-500"></div>
+                        <div class="code-dot bg-green-500"></div>
+                    </div>
+                    <span class="mono text-[10px] text-gray-500">traffic_agent.py</span>
+                </div>
+                <div class="code-body mono text-xs overflow-x-auto">
+                    <div class="code-line">
+                        <span class="line-number">1</span>
+                        <span class="code-content"><span class="code-keyword">import</span> torch</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">2</span>
+                        <span class="code-content"><span class="code-keyword">import</span> torch.nn <span
+                                class="code-keyword">as</span> nn</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">3</span>
+                        <span class="code-content"></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">4</span>
+                        <span class="code-content"><span class="code-keyword">class</span> <span
+                                class="code-function">TrafficAgent</span>(nn.Module):</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">5</span>
+                        <span class="code-content"> <span class="code-keyword">def</span> <span
+                                class="code-function">__init__</span>(self, state_dim, action_dim):</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">6</span>
+                        <span class="code-content"> <span class="code-function">super</span>().__init__()</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">7</span>
+                        <span class="code-content"> self.network = nn.<span
+                                class="code-function">Sequential</span>(</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">8</span>
+                        <span class="code-content"> nn.<span class="code-function">Linear</span>(state_dim, <span
+                                class="code-number">256</span>),</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">9</span>
+                        <span class="code-content"> nn.<span class="code-function">ReLU</span>(),</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">10</span>
+                        <span class="code-content"> nn.<span class="code-function">Linear</span>(<span
+                                class="code-number">256</span>, <span class="code-number">128</span>),</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">11</span>
+                        <span class="code-content"> nn.<span class="code-function">ReLU</span>(),</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">12</span>
+                        <span class="code-content"> nn.<span class="code-function">Linear</span>(<span
+                                class="code-number">128</span>, action_dim)</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">13</span>
+                        <span class="code-content"> )</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">14</span>
+                        <span class="code-content"></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">15</span>
+                        <span class="code-content"> <span class="code-keyword">def</span> <span
+                                class="code-function">forward</span>(self, state):</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">16</span>
+                        <span class="code-content"> <span class="code-keyword">return</span> self.<span
+                                class="code-function">network</span>(state)</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">17</span>
+                        <span class="code-content"></span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">18</span>
+                        <span class="code-content"> <span class="code-keyword">def</span> <span
+                                class="code-function">select_action</span>(self, state, epsilon=<span
+                                class="code-number">0.1</span>):</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">19</span>
+                        <span class="code-content"> <span class="code-keyword">if</span> torch.<span
+                                class="code-function">rand</span>(<span class="code-number">1</span>) < epsilon:</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">20</span>
+                        <span class="code-content"> <span class="code-keyword">return</span> torch.<span
+                                class="code-function">randint</span>(<span class="code-number">0</span>,
+                            self.action_dim, (<span class="code-number">1</span>,))</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="line-number">21</span>
+                        <span class="code-content"> <span class="code-keyword">return</span> self.<span
+                                class="code-function">forward</span>(state).<span
+                                class="code-function">argmax</span>()</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="px-6 lg:px-12 max-w-4xl mx-auto text-center reveal">
+            <div class="glass-panel p-12 border-purple-500/20">
+                <div
+                    class="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-cyan-500/20 border border-purple-500/30 rounded-2xl flex items-center justify-center mx-auto mb-8">
+                    <i class="fas fa-rocket text-3xl purple-gradient"></i>
+                </div>
+
+                <h2 class="text-3xl md:text-4xl font-bold brand-font mb-6">
+                    See the AI in Action
+                </h2>
+                <p class="text-gray-400 mb-10 max-w-xl mx-auto">
+                    Experience our neural traffic management system live in the Digital Twin Sandbox.
+                    Watch agents learn and optimize in real-time.
+                </p>
+
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="simulation.html"
+                        class="px-10 py-4 bg-purple-500 text-white rounded-full font-semibold text-sm uppercase tracking-wider hover:bg-purple-400 transition-all shadow-lg shadow-purple-500/30 flex items-center gap-2">
+                        <i class="fas fa-play"></i>
+                        Launch Simulation
+                    </a>
+                    <a href="business.html"
+                        class="px-10 py-4 border border-purple-500/30 text-purple-400 rounded-full font-semibold text-sm uppercase tracking-wider hover:bg-purple-500/10 transition-all flex items-center gap-2">
+                        <i class="fas fa-coins"></i>
+                        View Business Model
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 px-6 lg:px-12 py-12 mt-32">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-wrap justify-between items-center gap-6 mb-8">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                        <i class="fas fa-brain text-purple-400"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold brand-font block">NEURAL CORE</span>
+                        <span class="text-[9px] mono text-gray-500">Green-Pulse AI Architecture</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-8 text-[10px] mono text-gray-500 uppercase tracking-wider">
+                    <span>Framework: <span class="text-white">PyTorch 2.0</span></span>
+                    <span class="text-white/20">|</span>
+                    <span>Model: <span class="text-white">MARL-PPO Hybrid</span></span>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-white/5 flex flex-wrap justify-between items-center gap-4">
+                <p class="text-[10px] text-gray-600 uppercase tracking-[0.2em]">
+                    © 2024 Green-Pulse Technologies. All Rights Reserved.
+                </p>
+                <p class="text-[10px] text-gray-600 uppercase tracking-[0.2em]">
+                    Team: Underdogs
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Preloader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('preloader').classList.add('hidden');
+            }, 1800);
+        });
+
+        // Custom Cursor
+        const dot = document.getElementById("cursor-dot");
+        const outline = document.getElementById("cursor-outline");
+
+        document.addEventListener("mousemove", (e) => {
+            const { clientX: x, clientY: y } = e;
+            dot.style.left = x + "px";
+            dot.style.top = y + "px";
+            outline.animate({ left: x + "px", top: y + "px" }, { duration: 400, fill: "forwards" });
+        });
+
+        // Hover Effects
+        const interactiveElements = document.querySelectorAll('a, button, .feature-card, .algo-card, .pipeline-step, .arch-node');
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                dot.classList.add('hovering');
+                outline.classList.add('hovering');
+            });
+            el.addEventListener('mouseleave', () => {
+                dot.classList.remove('hovering');
+                outline.classList.remove('hovering');
+            });
+        });
+
+        // Card Mouse Tracking
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                card.style.setProperty('--mouse-x', x + '%');
+                card.style.setProperty('--mouse-y', y + '%');
+            });
+        });
+
+        // Scroll Reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        reveals.forEach(reveal => revealObserver.observe(reveal));
+
+        // Generate Neural Network Background
+        const neuralConnections = document.getElementById('neural-connections');
+        const neuralNodes = document.getElementById('neural-nodes');
+
+        const nodes = [];
+        for (let i = 0; i < 30; i++) {
+            const x = Math.random() * 1000;
+            const y = Math.random() * 600;
+            nodes.push({ x, y });
+
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', y);
+            circle.setAttribute('r', 3 + Math.random() * 4);
+            circle.setAttribute('fill', '#a855f7');
+            circle.setAttribute('opacity', 0.3 + Math.random() * 0.4);
+            circle.classList.add('neural-pulse');
+            circle.style.animationDelay = Math.random() * 3 + 's';
+            neuralNodes.appendChild(circle);
+        }
+
+        // Draw connections
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                const dist = Math.sqrt(
+                    Math.pow(nodes[i].x - nodes[j].x, 2) +
+                    Math.pow(nodes[i].y - nodes[j].y, 2)
+                );
+
+                if (dist < 150 && Math.random() > 0.5) {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', nodes[i].x);
+                    line.setAttribute('y1', nodes[i].y);
+                    line.setAttribute('x2', nodes[j].x);
+                    line.setAttribute('y2', nodes[j].y);
+                    line.setAttribute('stroke', '#a855f7');
+                    line.setAttribute('stroke-width', '1');
+                    line.setAttribute('opacity', 0.1);
+                    neuralConnections.appendChild(line);
+                }
+            }
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+        // 3D Card Tilt & Mouse Tracking
+        document.querySelectorAll('.algo-card, .stat-card, .glass-panel').forEach(card => {
+            card.style.transformStyle = 'preserve-3d';
+            card.style.perspective = '1000px';
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((centerY - y) / centerY) * 10;
+                const rotateY = ((x - centerX) / centerX) * 10;
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+
+                const percentX = (x / rect.width) * 100;
+                const percentY = (y / rect.height) * 100;
+                card.style.setProperty('--mouse-x', percentX + '%');
+                card.style.setProperty('--mouse-y', percentY + '%');
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            });
+
+            // Add depth to inner elements
+            const innerElements = card.querySelectorAll('i, h2, h3, h4, .text-3xl, .algo-name');
+            innerElements.forEach(el => {
+                el.style.transform = 'translateZ(30px)';
+                el.style.transition = 'transform 0.3s ease-out';
+            });
+        });
+    </script>
+</body>
+
+</html>

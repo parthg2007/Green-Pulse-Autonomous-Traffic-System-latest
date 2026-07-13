@@ -1,0 +1,2692 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green-Pulse | Neural Twin Sandbox - Live Simulation</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+
+    <style>
+        :root {
+            --neon: #00ff9d;
+            --neon-dim: #00cc7d;
+            --cyan: #00d4ff;
+            --purple: #a855f7;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --bg: #030706;
+            --bg-panel: rgba(10, 20, 15, 0.8);
+            --glass: rgba(255, 255, 255, 0.02);
+            --border: rgba(0, 255, 157, 0.12);
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--neon) transparent;
+        }
+
+        *::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: var(--neon);
+            border-radius: 2px;
+        }
+
+        body {
+            background: var(--bg);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            cursor: none;
+            user-select: none;
+        }
+
+        .brand-font {
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 30px;
+            transition: opacity 0.8s, visibility 0.8s;
+        }
+
+        #preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .loader-cell {
+            width: 20px;
+            height: 20px;
+            background: var(--neon);
+            border-radius: 4px;
+            animation: loader-pulse 1.5s infinite;
+        }
+
+        .loader-cell:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .loader-cell:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .loader-cell:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .loader-cell:nth-child(4) {
+            animation-delay: 0.1s;
+        }
+
+        .loader-cell:nth-child(5) {
+            animation-delay: 0.2s;
+        }
+
+        .loader-cell:nth-child(6) {
+            animation-delay: 0.3s;
+        }
+
+        .loader-cell:nth-child(7) {
+            animation-delay: 0.2s;
+        }
+
+        .loader-cell:nth-child(8) {
+            animation-delay: 0.3s;
+        }
+
+        .loader-cell:nth-child(9) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes loader-pulse {
+
+            0%,
+            100% {
+                opacity: 0.2;
+                transform: scale(0.8);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .loader-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--neon);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .loader-status {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #666;
+            margin-top: -20px;
+        }
+
+        /* Custom Cursor */
+        #cursor-dot {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: var(--neon);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px var(--neon);
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        #cursor-dot.clicking {
+            transform: translate(-50%, -50%) scale(0.5);
+        }
+
+        #cursor-outline {
+            position: fixed;
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(0, 255, 157, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        #cursor-outline.hovering {
+            width: 50px;
+            height: 50px;
+            border-color: var(--neon);
+            background: rgba(0, 255, 157, 0.1);
+        }
+
+        /* Panel Styles */
+        .cyber-panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cyber-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon), transparent);
+            opacity: 0.5;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #888;
+        }
+
+        .panel-body {
+            padding: 16px;
+        }
+
+        /* Neon Effects */
+        .neon-text {
+            color: var(--neon);
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5), 0 0 30px rgba(0, 255, 157, 0.3);
+        }
+
+        .neon-border {
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.1), inset 0 0 20px rgba(0, 255, 157, 0.03);
+        }
+
+        /* Scanline Effect */
+        .scanline {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 157, 0.15), transparent);
+            top: 0;
+            left: 0;
+            animation: scan 4s linear infinite;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            0% {
+                top: 0%;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 100%;
+                opacity: 0;
+            }
+        }
+
+        /* Neural Log */
+        #neural-log {
+            height: 100%;
+            overflow-y: auto;
+            mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+            padding-right: 8px;
+        }
+
+        .log-entry {
+            font-size: 10px;
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid var(--neon);
+            border-radius: 0 8px 8px 0;
+            opacity: 0.6;
+            transition: all 0.3s;
+            animation: log-slide-in 0.3s ease-out;
+        }
+
+        @keyframes log-slide-in {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 0.6;
+            }
+        }
+
+        .log-entry:first-child {
+            opacity: 1;
+            border-left-color: var(--cyan);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .log-entry:hover {
+            opacity: 1;
+            background: rgba(0, 255, 157, 0.05);
+        }
+
+        .log-timestamp {
+            color: #666;
+            margin-right: 8px;
+        }
+
+        .log-type {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: 700;
+            margin-right: 8px;
+            text-transform: uppercase;
+        }
+
+        .log-type.policy {
+            background: rgba(168, 85, 247, 0.2);
+            color: var(--purple);
+        }
+
+        .log-type.reward {
+            background: rgba(0, 255, 157, 0.2);
+            color: var(--neon);
+        }
+
+        .log-type.sync {
+            background: rgba(0, 212, 255, 0.2);
+            color: var(--cyan);
+        }
+
+        .log-type.alert {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--red);
+        }
+
+        .log-type.mint {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--amber);
+        }
+
+        /* Metric Cards */
+        .metric-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s;
+        }
+
+        .metric-card:hover {
+            background: rgba(0, 255, 157, 0.05);
+            border-color: rgba(0, 255, 157, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .metric-label {
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .metric-change {
+            font-size: 10px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .metric-change.positive {
+            color: var(--neon);
+        }
+
+        .metric-change.negative {
+            color: var(--red);
+        }
+
+        /* Sparkline */
+        .sparkline {
+            height: 30px;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            margin-top: 12px;
+        }
+
+        .sparkline-bar {
+            flex: 1;
+            background: var(--neon);
+            border-radius: 2px 2px 0 0;
+            opacity: 0.6;
+            transition: all 0.3s;
+        }
+
+        .sparkline-bar:last-child {
+            opacity: 1;
+        }
+
+        /* Range Sliders */
+        .slider-container {
+            margin-bottom: 24px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .slider-label {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #aaa;
+        }
+
+        .slider-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            background: rgba(0, 255, 157, 0.1);
+            border-radius: 6px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--neon);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--neon);
+            transition: transform 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:active {
+            transform: scale(0.9);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: var(--neon);
+            color: #000;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            transform: translateX(100%);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 157, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            color: #888;
+            font-weight: 600;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--neon);
+            color: var(--neon);
+            background: rgba(0, 255, 157, 0.05);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge.online {
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            color: var(--neon);
+        }
+
+        .status-badge.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--amber);
+        }
+
+        .status-badge.offline {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--red);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        .status-badge.online .status-dot {
+            background: var(--neon);
+        }
+
+        .status-badge.warning .status-dot {
+            background: var(--amber);
+        }
+
+        .status-badge.offline .status-dot {
+            background: var(--red);
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
+        }
+
+        /* Reward Bar */
+        .reward-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .reward-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .reward-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Mini Map */
+        .mini-map {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .mini-map-grid {
+            position: absolute;
+            inset: 10px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .mini-node {
+            width: 8px;
+            height: 8px;
+            background: var(--neon);
+            border-radius: 2px;
+            opacity: 0.6;
+            animation: mini-pulse 2s infinite;
+        }
+
+        .mini-node:nth-child(odd) {
+            animation-delay: 0.5s;
+        }
+
+        @keyframes mini-pulse {
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .mini-map-viewport {
+            position: absolute;
+            border: 2px solid var(--cyan);
+            border-radius: 4px;
+            background: rgba(0, 212, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        /* Time Control */
+        .time-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .time-btn:hover {
+            background: rgba(0, 255, 157, 0.1);
+            border-color: var(--neon);
+            color: var(--neon);
+        }
+
+        .time-btn.active {
+            background: var(--neon);
+            border-color: var(--neon);
+            color: #000;
+        }
+
+        /* Scenario Tabs */
+        .scenario-tabs {
+            display: flex;
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px;
+            border-radius: 10px;
+        }
+
+        .scenario-tab {
+            padding: 8px 16px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .scenario-tab:hover {
+            color: #aaa;
+        }
+
+        .scenario-tab.active {
+            background: var(--neon);
+            color: #000;
+        }
+
+        /* XAI Panel */
+        .xai-content {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            position: relative;
+        }
+
+        .xai-content::before {
+            content: '"';
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 40px;
+            color: var(--neon);
+            opacity: 0.2;
+            line-height: 1;
+        }
+
+        .xai-text {
+            font-size: 12px;
+            line-height: 1.8;
+            color: #aaa;
+            padding-left: 20px;
+        }
+
+        .xai-highlight {
+            color: var(--neon);
+            font-weight: 600;
+        }
+
+        .xai-highlight.blue {
+            color: var(--cyan);
+        }
+
+        .xai-highlight.amber {
+            color: var(--amber);
+        }
+
+        .xai-highlight.purple {
+            color: var(--purple);
+        }
+
+        /* Token Display */
+        .token-display {
+            background: linear-gradient(135deg, rgba(0, 255, 157, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
+            border: 1px solid rgba(0, 255, 157, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .token-display::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(0, 255, 157, 0.1), transparent 50%);
+        }
+
+        .token-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--neon);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            position: relative;
+        }
+
+        .token-icon::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border: 2px solid var(--neon);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: token-pulse 2s infinite;
+        }
+
+        @keyframes token-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.1;
+            }
+        }
+
+        .token-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--neon);
+            text-shadow: 0 0 30px rgba(0, 255, 157, 0.5);
+            position: relative;
+        }
+
+        .token-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        /* Footer Bar */
+        .footer-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .reward-weights {
+            display: flex;
+            gap: 24px;
+        }
+
+        .weight-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .weight-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .weight-label {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .weight-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* ========== DQN SIMULATION STYLES ========== */
+
+        #sim-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            z-index: 1;
+        }
+
+        .traffic-hud {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px 20px 12px;
+            text-align: center;
+            min-width: 130px;
+            transition: all 0.5s;
+        }
+
+        .traffic-hud.active {
+            border-color: rgba(0, 255, 157, 0.35);
+            box-shadow: 0 0 25px rgba(0, 255, 157, 0.12);
+        }
+
+        .traffic-hud.inactive {
+            opacity: 0.35;
+            filter: grayscale(0.5);
+        }
+
+        .traffic-hud-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .traffic-hud-timer {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 30px;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .traffic-hud-dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .thd {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            transition: all 0.3s;
+        }
+
+        .thd.g-on {
+            background: var(--neon);
+            box-shadow: 0 0 10px var(--neon);
+        }
+
+        .thd.y-on {
+            background: var(--amber);
+            box-shadow: 0 0 10px var(--amber);
+        }
+
+        .thd.r-on {
+            background: var(--red);
+            box-shadow: 0 0 10px var(--red);
+        }
+
+        .weather-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .weather-btn:hover {
+            background: rgba(0, 255, 157, 0.1);
+            border-color: var(--neon);
+        }
+
+        .weather-btn.active {
+            background: rgba(0, 255, 157, 0.15);
+            border-color: var(--neon);
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.15);
+        }
+
+        #pause-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 30;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #pause-overlay.visible {
+            display: flex;
+        }
+
+        #weather-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2;
+            transition: all 1s;
+        }
+
+        /* Responsive */
+        @media (max-width: 1280px) {
+            .hide-lg {
+                display: none;
+            }
+        }
+
+        @media (max-width: 1024px) {
+
+            #cursor-dot,
+            #cursor-outline {
+                display: none;
+            }
+
+            body {
+                cursor: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hide-mobile {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader-grid">
+            <div class="loader-cell"></div>
+            <div class="loader-cell"></div>
+            <div class="loader-cell"></div>
+            <div class="loader-cell"></div>
+            <div class="loader-cell"></div>
+            <div class="loader-cell"></div>
+            <div class="loader-cell"></div>
+            <div class="loader-cell"></div>
+            <div class="loader-cell"></div>
+        </div>
+        <div class="loader-text">Initializing Neural Twin</div>
+        <div class="loader-status" id="loader-status">Connecting to MARL agents...</div>
+    </div>
+
+    <!-- Cursors -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+
+    <!-- Main Container -->
+    <div class="flex flex-col h-screen">
+
+        <!-- Navigation -->
+        <nav class="flex items-center justify-between px-6 py-3 bg-black/50 border-b border-white/5 backdrop-blur-xl">
+            <div class="flex items-center gap-6">
+                <a href="index.html" class="flex items-center gap-3 group">
+                    <div
+                        class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-green-500/50 transition">
+                        <i class="fas fa-chevron-left text-sm text-gray-500 group-hover:text-green-400 transition"></i>
+                    </div>
+                    <div>
+                        <span class="brand-font font-semibold text-sm block">GREEN-PULSE</span>
+                        <span class="mono text-[9px] text-gray-600">DQN_CORE v4.0</span>
+                    </div>
+                </a>
+
+                <div class="h-6 w-px bg-white/10 hide-mobile"></div>
+
+                <div class="hidden lg:flex items-center gap-6 hide-mobile">
+                    <a href="index.html"
+                        class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Home</a>
+                    <a href="crisis.html"
+                        class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Crisis</a>
+                    <a href="simulation.html"
+                        class="text-xs uppercase tracking-wider text-green-400 font-bold transition">Sandbox</a>
+                    <a href="tech.html"
+                        class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Tech</a>
+                    <a href="business.html"
+                        class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Business</a>
+                    <a href="roadmap.html"
+                        class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Roadmap</a>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Time Controls -->
+                <div class="time-control hide-lg">
+                    <button class="time-btn" id="btn-slow" title="0.5x Speed"><i
+                            class="fas fa-backward text-xs"></i></button>
+                    <button class="time-btn active" id="btn-play" title="Play/Pause"><i
+                            class="fas fa-pause text-xs"></i></button>
+                    <button class="time-btn" id="btn-fast" title="2x Speed"><i
+                            class="fas fa-forward text-xs"></i></button>
+                </div>
+
+                <div class="h-6 w-px bg-white/10 hide-lg"></div>
+
+                <button id="btn-emergency"
+                    class="px-4 py-2 border border-red-500/30 text-red-400 text-[10px] font-semibold uppercase rounded-lg hover:bg-red-500/10 transition hide-mobile">
+                    <i class="fas fa-triangle-exclamation mr-1"></i>
+                    Emergency Override
+                </button>
+                <button
+                    class="px-4 py-2 bg-green-500/10 border border-green-500/30 text-green-400 text-[10px] font-semibold uppercase rounded-lg"
+                    id="status-indicator">
+                    <i class="fas fa-check-circle mr-1"></i>
+                    <span id="status-text">System Optimal</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Scenario Selector -->
+        <div class="px-6 py-3 bg-black/30 border-b border-white/5 flex items-center justify-between">
+            <div class="scenario-tabs">
+                <div class="scenario-tab active" data-scenario="normal">Normal Flow</div>
+                <div class="scenario-tab" data-scenario="rush">Rush Hour</div>
+                <div class="scenario-tab" data-scenario="emergency">Emergency</div>
+                <div class="scenario-tab" data-scenario="event">Event Mode</div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <span class="mono text-[10px] text-gray-500">
+                    Simulation Time: <span class="text-white font-semibold" id="sim-time">14:32:47</span>
+                </span>
+                <span class="mono text-[10px] text-gray-500">
+                    Episode: <span class="text-cyan-400 font-semibold" id="episode-counter">#0</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-grow flex overflow-hidden p-4 gap-4 main-grid"
+            style="display: grid; grid-template-columns: 300px 1fr 320px;">
+
+            <!-- Left Panel -->
+            <div class="flex flex-col gap-4 overflow-hidden">
+
+                <!-- Neural Decision Stream -->
+                <div class="cyber-panel neon-border flex-grow flex flex-col overflow-hidden">
+                    <div class="panel-header">
+                        <span class="panel-title">Neural Decision Stream</span>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            <span class="mono text-[9px] text-gray-500">LIVE</span>
+                        </div>
+                    </div>
+                    <div class="panel-body flex-grow overflow-hidden">
+                        <div id="neural-log" class="mono h-full"></div>
+                    </div>
+                </div>
+
+                <!-- XAI Justification -->
+                <div class="cyber-panel neon-border">
+                    <div class="panel-header">
+                        <span class="panel-title">XAI Justification</span>
+                        <i class="fas fa-brain text-xs text-purple-400"></i>
+                    </div>
+                    <div class="panel-body">
+                        <div class="xai-content">
+                            <p class="xai-text" id="xai-text">
+                                Waiting for DQN agent initialization...
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 mt-4">
+                            <span class="mono text-[9px] text-gray-500">Confidence:</span>
+                            <div class="flex-grow reward-bar">
+                                <div class="reward-bar-fill bg-gradient-to-r from-purple-500 to-cyan-400"
+                                    id="confidence-bar" style="width: 0%;"></div>
+                            </div>
+                            <span class="mono text-[10px] text-purple-400 font-bold" id="confidence-value">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mini Map -->
+                <div class="cyber-panel neon-border hide-lg">
+                    <div class="panel-header">
+                        <span class="panel-title">Network Overview</span>
+                        <i class="fas fa-map text-xs text-gray-500"></i>
+                    </div>
+                    <div class="panel-body">
+                        <div class="mini-map">
+                            <div class="mini-map-grid">
+                                <div class="mini-node" style="grid-column: 2; grid-row: 1;"></div>
+                                <div class="mini-node" style="grid-column: 5; grid-row: 1;"></div>
+                                <div class="mini-node" style="grid-column: 7; grid-row: 1;"></div>
+                                <div class="mini-node" style="grid-column: 1; grid-row: 2;"></div>
+                                <div class="mini-node" style="grid-column: 4; grid-row: 2;"></div>
+                                <div class="mini-node" style="grid-column: 6; grid-row: 2;"></div>
+                                <div class="mini-node" style="grid-column: 8; grid-row: 2;"></div>
+                                <div class="mini-node" style="grid-column: 2; grid-row: 3;"></div>
+                                <div class="mini-node" style="grid-column: 5; grid-row: 3;"></div>
+                                <div class="mini-node" style="grid-column: 3; grid-row: 4;"></div>
+                                <div class="mini-node" style="grid-column: 6; grid-row: 4;"></div>
+                            </div>
+                            <div class="mini-map-viewport" style="left: 20%; top: 20%; width: 40%; height: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== CENTER — DQN LIVE SIMULATION ========== -->
+            <div class="cyber-panel neon-border relative overflow-hidden flex items-center justify-center"
+                style="background: #030706;">
+                <div class="scanline"></div>
+
+                <!-- View Label -->
+                <div class="absolute top-4 left-4 z-20">
+                    <span
+                        class="px-3 py-1.5 bg-black/80 rounded-lg text-[10px] font-semibold mono border border-white/10 uppercase flex items-center gap-2">
+                        <i class="fas fa-robot text-cyan-400"></i>
+                        DQN Live Simulation
+                    </span>
+                </div>
+
+                <!-- Top Right Controls -->
+                <div class="absolute top-4 right-4 z-20 flex gap-2">
+                    <div class="flex gap-1">
+                        <button class="weather-btn active" data-weather="SUNNY" title="Clear Weather">☀️</button>
+                        <button class="weather-btn" data-weather="RAIN" title="Rain">🌧️</button>
+                        <button class="weather-btn" data-weather="FOG" title="Fog">🌫️</button>
+                    </div>
+                    <button id="sim-pause-btn"
+                        class="px-3 py-1.5 bg-black/80 rounded-lg text-[10px] font-semibold mono border border-white/10 uppercase hover:border-green-500/50 transition flex items-center gap-1">
+                        <i class="fas fa-pause" id="pause-icon"></i>
+                    </button>
+                    <button id="sim-reset-btn"
+                        class="px-3 py-1.5 bg-black/80 rounded-lg text-[10px] font-semibold mono border border-white/10 uppercase hover:border-green-500/50 transition flex items-center gap-1">
+                        <i class="fas fa-rotate-left"></i>
+                    </button>
+                </div>
+
+                <!-- Traffic Light HUD -->
+                <div class="absolute top-14 left-0 right-0 flex justify-center gap-4 z-20 pointer-events-none">
+                    <div class="traffic-hud active" id="ns-hud">
+                        <div class="traffic-hud-label">↕ North-South</div>
+                        <div class="traffic-hud-timer neon-text" id="ns-timer">05</div>
+                        <div class="traffic-hud-dots">
+                            <div class="thd g-on" id="ns-g"></div>
+                            <div class="thd" id="ns-y"></div>
+                            <div class="thd" id="ns-r"></div>
+                        </div>
+                    </div>
+                    <div class="traffic-hud inactive" id="ew-hud">
+                        <div class="traffic-hud-label">↔ East-West</div>
+                        <div class="traffic-hud-timer" style="color: #333;" id="ew-timer">--</div>
+                        <div class="traffic-hud-dots">
+                            <div class="thd" id="ew-g"></div>
+                            <div class="thd" id="ew-y"></div>
+                            <div class="thd r-on" id="ew-r"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Canvas -->
+                <canvas id="sim-canvas" width="800" height="600"></canvas>
+
+                <!-- Weather Overlay -->
+                <div id="weather-overlay"></div>
+
+                <!-- Pause Overlay -->
+                <div id="pause-overlay">
+                    <div class="text-center">
+                        <div class="brand-font text-2xl font-bold text-white uppercase tracking-widest mb-2">Simulation
+                            Paused</div>
+                        <div class="text-sm text-gray-500">Neural network frozen. Press resume to continue learning.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Metrics -->
+                <div class="absolute bottom-6 left-6 right-6 z-20 grid grid-cols-4 gap-4">
+                    <div class="metric-card">
+                        <div class="metric-label">Vehicles Passed</div>
+                        <div class="metric-value neon-text" id="metric-throughput">0</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-car text-[8px]"></i>
+                            <span id="metric-throughput-sub">Active: 0</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">DQN Epsilon</div>
+                        <div class="metric-value text-cyan-400" id="metric-epsilon">100%</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-brain text-[8px]"></i>
+                            <span>Exploration rate</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">CO₂ Emitted</div>
+                        <div class="metric-value text-amber-400" id="metric-co2">0.0g</div>
+                        <div class="sparkline" id="co2-sparkline"></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Episodes</div>
+                        <div class="metric-value text-purple-400" id="metric-episodes">0</div>
+                        <div class="reward-bar mt-3">
+                            <div class="reward-bar-fill bg-gradient-to-r from-purple-500 to-purple-300"
+                                id="episodes-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="flex flex-col gap-4 overflow-hidden">
+
+                <!-- Prescriptive Sandbox -->
+                <div class="cyber-panel neon-border">
+                    <div class="panel-header">
+                        <span class="panel-title">Prescriptive Sandbox</span>
+                        <i class="fas fa-sliders text-xs text-gray-500"></i>
+                    </div>
+                    <div class="panel-body">
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <span class="slider-label">Traffic Density Surge</span>
+                                <span class="slider-value neon-text" id="slider-val-1">45%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="45" id="slider-1">
+                        </div>
+
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <span class="slider-label">Emissions Focus (β)</span>
+                                <span class="slider-value text-amber-400" id="slider-val-2">60%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="60" id="slider-2"
+                                style="accent-color: #f59e0b;">
+                        </div>
+
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <span class="slider-label">Safety Priority (γ)</span>
+                                <span class="slider-value text-purple-400" id="slider-val-3">75%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="75" id="slider-3"
+                                style="accent-color: #a855f7;">
+                        </div>
+
+                        <div class="space-y-3 mt-6">
+                            <button class="btn-primary" id="btn-execute-policy">
+                                <i class="fas fa-bolt mr-2"></i>
+                                Execute New Policy
+                            </button>
+                            <button class="btn-secondary" id="btn-reset-twin">
+                                <i class="fas fa-rotate-left mr-2"></i>
+                                Reset Twin Parity
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent Status -->
+                <div class="cyber-panel neon-border">
+                    <div class="panel-header">
+                        <span class="panel-title">Agent Status</span>
+                        <span class="mono text-[9px] text-green-400" id="agent-online-count">4/4 Online</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="grid grid-cols-4 gap-2" id="agent-status-grid">
+                            <div class="text-center p-2 bg-green-500/10 rounded-lg border border-green-500/20"
+                                id="agent-n">
+                                <div class="text-lg font-bold brand-font neon-text">N</div>
+                                <div class="text-[8px] text-gray-500 uppercase" id="agent-n-status">Idle</div>
+                            </div>
+                            <div class="text-center p-2 bg-green-500/10 rounded-lg border border-green-500/20"
+                                id="agent-s">
+                                <div class="text-lg font-bold brand-font neon-text">S</div>
+                                <div class="text-[8px] text-gray-500 uppercase" id="agent-s-status">Idle</div>
+                            </div>
+                            <div class="text-center p-2 bg-green-500/10 rounded-lg border border-green-500/20"
+                                id="agent-e">
+                                <div class="text-lg font-bold brand-font neon-text">E</div>
+                                <div class="text-[8px] text-gray-500 uppercase" id="agent-e-status">Idle</div>
+                            </div>
+                            <div class="text-center p-2 bg-green-500/10 rounded-lg border border-green-500/20"
+                                id="agent-w">
+                                <div class="text-lg font-bold brand-font neon-text">W</div>
+                                <div class="text-[8px] text-gray-500 uppercase" id="agent-w-status">Idle</div>
+                            </div>
+                            <div class="text-center p-2 bg-green-500/10 rounded-lg border border-green-500/20">
+                                <div class="text-lg font-bold brand-font text-cyan-400">ε</div>
+                                <div class="text-[8px] text-gray-500 uppercase" id="agent-eps-val">100%</div>
+                            </div>
+                            <div class="text-center p-2 bg-green-500/10 rounded-lg border border-green-500/20">
+                                <div class="text-lg font-bold brand-font text-purple-400">L</div>
+                                <div class="text-[8px] text-gray-500 uppercase" id="agent-loss-val">0.000</div>
+                            </div>
+                            <div class="text-center p-2 bg-green-500/10 rounded-lg border border-green-500/20">
+                                <div class="text-lg font-bold brand-font text-amber-400">Q</div>
+                                <div class="text-[8px] text-gray-500 uppercase" id="agent-q-val">0.00</div>
+                            </div>
+                            <div class="text-center p-2 bg-green-500/10 rounded-lg border border-green-500/20">
+                                <div class="text-lg font-bold brand-font neon-text">AI</div>
+                                <div class="text-[8px] text-gray-500 uppercase" id="agent-ai-status">Ready</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Incentive Engine -->
+                <div class="cyber-panel neon-border flex-grow">
+                    <div class="panel-header">
+                        <span class="panel-title">Incentive Engine</span>
+                        <i class="fas fa-coins text-xs text-amber-400"></i>
+                    </div>
+                    <div class="panel-body">
+                        <div class="token-display">
+                            <div class="token-icon">
+                                <i class="fas fa-leaf text-xl text-black"></i>
+                            </div>
+                            <div class="token-value" id="token-value">0.0</div>
+                            <div class="token-label">Green Tokens Minted</div>
+                        </div>
+
+                        <div class="mt-6 space-y-3">
+                            <div
+                                class="flex items-center justify-between p-3 bg-black/30 rounded-lg border border-white/5">
+                                <span class="text-[10px] text-gray-400">Minting Rate</span>
+                                <span class="mono text-[11px] text-green-400 font-semibold"
+                                    id="minting-rate">+0.0/min</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-3 bg-black/30 rounded-lg border border-white/5">
+                                <span class="text-[10px] text-gray-400">Carbon Value</span>
+                                <span class="mono text-[11px] text-amber-400 font-semibold">$0.042/g</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer Bar -->
+        <div class="footer-bar">
+            <div class="flex items-center gap-6">
+                <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Multi-Objective Reward
+                    Function:</span>
+                <div class="reward-weights">
+                    <div class="weight-item">
+                        <div class="weight-dot bg-cyan-400"></div>
+                        <span class="weight-label">α (Wait)</span>
+                        <span class="weight-value text-cyan-400" id="weight-alpha">0.45</span>
+                    </div>
+                    <div class="weight-item">
+                        <div class="weight-dot bg-amber-400"></div>
+                        <span class="weight-label">β (CO₂)</span>
+                        <span class="weight-value text-amber-400" id="weight-beta">0.35</span>
+                    </div>
+                    <div class="weight-item">
+                        <div class="weight-dot bg-purple-400"></div>
+                        <span class="weight-label">γ (Safety)</span>
+                        <span class="weight-value text-purple-400" id="weight-gamma">0.20</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Total Episodic
+                    Reward:</span>
+                <span class="brand-font text-lg font-bold neon-text" id="total-reward">+0.00</span>
+                <span class="text-white/20">|</span>
+                <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Team: <span
+                        class="text-white">Underdogs</span></span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ================================================================
+        //  GREEN-PULSE × DQN AUTONOMOUS TRAFFIC SIMULATION
+        //  Ported from React/TypeScript to vanilla JS
+        // ================================================================
+
+        // ======================== CONSTANTS ========================
+        const CW = 800, CH = 600;
+        const ROAD_W = 140, CAR_W = 48, CAR_H = 28, TRUCK_W = 72;
+        const ACTIONS = ['SWITCH', 'EXTEND_5S', 'EXTEND_10S'];
+        const STATE_SIZE = 12;
+        const LEARNING_RATE = 0.0005, GAMMA = 0.95;
+        const MEMORY_SIZE = 2000, BATCH_SIZE = 64;
+        const INITIAL_EPSILON = 1.0, EPSILON_DECAY = 0.9995, EPSILON_MIN = 0.01;
+        const TARGET_UPDATE_FREQ = 100;
+        const MIN_GREEN = 5, MAX_GREEN = 60, YELLOW_TIME = 3;
+        const ACCELERATION = 0.08, BRAKING = 0.2, STOP_THRESH = 0.1;
+
+        const REWARDS = { VEHICLE_PASSED: 10, QUEUE_PENALTY: -1.0, EMISSION_PENALTY: -0.01 };
+        const CO2R = { IDLE: 0.5, ACCEL: 1.0, RUNNING: 0.1, TRUCK_MULT: 2.0 };
+
+        const WEATHER_CFG = {
+            SUNNY: { name: 'Clear', speed: 3.8, bg: '#030706', factor: 1.0 },
+            RAIN: { name: 'Rain', speed: 2.6, bg: '#030706', factor: 0.7 },
+            FOG: { name: 'Fog', speed: 2.0, bg: '#030706', factor: 0.5 }
+        };
+
+        const VEHICLE_COLORS = [
+            '#00cc7d', '#00b4d8', '#8b5cf6', '#d97706', '#0891b2',
+            '#059669', '#7c3aed', '#ca8a04', '#0e7490', '#047857',
+            '#06b6d4', '#10b981', '#6366f1', '#eab308', '#14b8a6'
+        ];
+
+        // ======================== DQN AGENT ========================
+        class DQNAgent {
+            constructor() {
+                this.memory = [];
+                this.epsilon = INITIAL_EPSILON;
+                this.model = null;
+                this.targetModel = null;
+                this.isDisposed = false;
+                this.trainStep = 0;
+                this.losses = [];
+                this.initialize();
+            }
+
+            initialize() {
+                try {
+                    if (this.model) this.model.dispose();
+                    if (this.targetModel) this.targetModel.dispose();
+                    this.model = this.createModel();
+                    this.targetModel = this.createModel();
+                    this.updateTarget();
+                    this.isDisposed = false;
+                } catch (e) { console.error('DQN init error:', e); }
+            }
+
+            createModel() {
+                const m = tf.sequential();
+                m.add(tf.layers.dense({ units: 128, inputShape: [STATE_SIZE], activation: 'relu', kernelInitializer: 'heNormal' }));
+                m.add(tf.layers.dropout({ rate: 0.2 }));
+                m.add(tf.layers.dense({ units: 128, activation: 'relu' }));
+                m.add(tf.layers.dropout({ rate: 0.2 }));
+                m.add(tf.layers.dense({ units: 64, activation: 'relu' }));
+                m.add(tf.layers.dense({ units: ACTIONS.length, activation: 'linear' }));
+                m.compile({ loss: 'meanSquaredError', optimizer: tf.train.adam(LEARNING_RATE) });
+                return m;
+            }
+
+            updateTarget() {
+                if (this.isDisposed) return;
+                try {
+                    const w = this.model.getWeights();
+                    const cw = w.map(t => t.clone());
+                    this.targetModel.setWeights(cw);
+                    cw.forEach(t => t.dispose());
+                } catch (e) { console.error('Target update error:', e); }
+            }
+
+            remember(state, action, reward, nextState, done) {
+                if (this.memory.length >= MEMORY_SIZE) this.memory.shift();
+                this.memory.push({ state, action, reward, nextState, done });
+            }
+
+            act(state) {
+                if (this.isDisposed) return 0;
+                if (Math.random() <= this.epsilon) return Math.floor(Math.random() * ACTIONS.length);
+                try {
+                    return tf.tidy(() => {
+                        const t = tf.tensor2d([state]);
+                        return this.model.predict(t).argMax(1).dataSync()[0];
+                    });
+                } catch (e) { return 0; }
+            }
+
+            getQValues(state) {
+                if (this.isDisposed) return [0, 0, 0];
+                try {
+                    return tf.tidy(() => {
+                        const t = tf.tensor2d([state]);
+                        return Array.from(this.model.predict(t).dataSync());
+                    });
+                } catch (e) { return [0, 0, 0]; }
+            }
+
+            async replay() {
+                if (this.isDisposed || this.memory.length < BATCH_SIZE) return null;
+                try {
+                    const idx = new Set();
+                    while (idx.size < BATCH_SIZE) idx.add(Math.floor(Math.random() * this.memory.length));
+                    const batch = Array.from(idx).map(i => this.memory[i]);
+
+                    const states = tf.tensor2d(batch.map(x => x.state));
+                    const nextStates = tf.tensor2d(batch.map(x => x.nextState));
+                    const currentQs = await this.model.predict(states).array();
+                    const nextQsTarget = await this.targetModel.predict(nextStates).array();
+
+                    batch.forEach((s, i) => {
+                        let target = s.reward;
+                        if (!s.done) target += GAMMA * Math.max(...nextQsTarget[i]);
+                        currentQs[i][s.action] = target;
+                    });
+
+                    const targetQs = tf.tensor2d(currentQs);
+                    const history = await this.model.fit(states, targetQs, { epochs: 1, verbose: 0 });
+                    const loss = history.history.loss[0];
+
+                    states.dispose(); nextStates.dispose(); targetQs.dispose();
+
+                    this.losses.push(loss);
+                    if (this.losses.length > 100) this.losses.shift();
+                    if (this.epsilon > EPSILON_MIN) this.epsilon *= EPSILON_DECAY;
+                    this.trainStep++;
+                    if (this.trainStep % TARGET_UPDATE_FREQ === 0) this.updateTarget();
+                    return loss;
+                } catch (e) { console.error('Replay error:', e); return null; }
+            }
+
+            getAverageLoss() {
+                if (this.losses.length === 0) return 0;
+                return this.losses.reduce((a, b) => a + b, 0) / this.losses.length;
+            }
+
+            dispose() {
+                if (this.isDisposed) return;
+                this.isDisposed = true;
+                if (this.model) { this.model.dispose(); this.model = null; }
+                if (this.targetModel) { this.targetModel.dispose(); this.targetModel = null; }
+            }
+        }
+
+        // ======================== SIMULATION STATE ========================
+        let agent = null;
+        const sim = {
+            timer: MIN_GREEN,
+            phase: 'GREEN',       // GREEN | YELLOW
+            activeSide: 'NS',     // NS | EW
+            vehicles: [],
+            weatherMode: 'SUNNY',
+            isPaused: false,
+            autoSpawn: true,
+            step: 0,
+            speedMult: 1,
+            stats: { N: 0, S: 0, E: 0, W: 0 },
+            metrics: {
+                totalEmissions: 0, vehiclesPassed: 0, episodeReward: 0,
+                avgLoss: 0, epsilon: INITIAL_EPSILON, episodes: 0, rewardHistory: []
+            },
+            aiDecision: { action: 'Initializing...', qValues: [0, 0, 0], confidence: '0' },
+            _epReward: 0, _lastState: null, _lastAction: null,
+            _stepCount: 0, _passedIds: new Set(), _stepEmissions: 0,
+            _lastEmUpdate: Date.now()
+        };
+
+        let spawnIntervalId = null;
+        let timerIntervalId = null;
+        let animFrameId = null;
+
+        // ======================== TREE POSITIONS ========================
+        const trees = [];
+        function generateTrees() {
+            for (let i = 0; i < 22; i++) {
+                let tx, ty;
+                do {
+                    tx = Math.random() * CW;
+                    ty = Math.random() * CH;
+                } while (Math.abs(tx - CW / 2) < 95 || Math.abs(ty - CH / 2) < 95);
+                trees.push({ x: tx, y: ty, s: 0.6 + Math.random() * 0.7 });
+            }
+        }
+
+        // ======================== CANVAS RENDERING ========================
+        const canvas = document.getElementById('sim-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Retina Display Scaling
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = CW * dpr;
+        canvas.height = CH * dpr;
+        canvas.style.width = CW + 'px';
+        canvas.style.height = CH + 'px';
+        ctx.scale(dpr, dpr);
+
+        function roundRect(x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function drawTree(x, y, s) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(s, s);
+            // Trunk
+            ctx.fillStyle = '#3d2614';
+            ctx.fillRect(-2, 15, 4, 8);
+            // Lower canopy
+            ctx.fillStyle = '#064e3b';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-12, 18);
+            ctx.lineTo(12, 18);
+            ctx.closePath();
+            ctx.fill();
+            // Upper canopy
+            ctx.fillStyle = '#059669';
+            ctx.beginPath();
+            ctx.moveTo(0, -12);
+            ctx.lineTo(-9, 6);
+            ctx.lineTo(9, 6);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawCrosswalks() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+            const cx = CW / 2, cy = CH / 2, rh = ROAD_W / 2;
+            // Four crosswalk positions
+            const positions = [
+                { x: cx - rh - 35, y: cy - rh, w: 30, h: ROAD_W, horiz: false },
+                { x: cx + rh + 5, y: cy - rh, w: 30, h: ROAD_W, horiz: false },
+                { x: cx - rh, y: cy - rh - 35, w: ROAD_W, h: 30, horiz: true },
+                { x: cx - rh, y: cy + rh + 5, w: ROAD_W, h: 30, horiz: true }
+            ];
+            positions.forEach(p => {
+                const stripes = 6;
+                if (p.horiz) {
+                    const sw = p.w / (stripes * 2);
+                    for (let i = 0; i < stripes; i++) {
+                        ctx.fillRect(p.x + i * sw * 2, p.y, sw, p.h);
+                    }
+                } else {
+                    const sh = p.h / (stripes * 2);
+                    for (let i = 0; i < stripes; i++) {
+                        ctx.fillRect(p.x, p.y + i * sh * 2, p.w, sh);
+                    }
+                }
+            });
+        }
+
+        function drawStopLines() {
+            const cx = CW / 2, cy = CH / 2, rh = ROAD_W / 2;
+            const lineW = 3;
+            // NS active = vertical road green, EW red stop lines on horizontal road
+            const nsGreen = sim.activeSide === 'NS' && sim.phase === 'GREEN';
+            const ewGreen = sim.activeSide === 'EW' && sim.phase === 'GREEN';
+
+            // North approach (vehicle from N going south, stop before center)
+            ctx.fillStyle = nsGreen ? 'rgba(0, 255, 157, 0.4)' : 'rgba(239, 68, 68, 0.5)';
+            ctx.fillRect(cx - rh, cy - rh - lineW, rh - 5, lineW); // left half (incoming lane)
+
+            // South approach
+            ctx.fillRect(cx + 5, cy + rh, rh - 5, lineW);
+
+            // East approach
+            ctx.fillStyle = ewGreen ? 'rgba(0, 255, 157, 0.4)' : 'rgba(239, 68, 68, 0.5)';
+            ctx.fillRect(cx - rh - lineW, cy + 5, lineW, rh - 5);
+
+            // West approach
+            ctx.fillRect(cx + rh, cy - rh, lineW, rh - 5);
+        }
+
+        function drawTrafficLightCircles() {
+            const cx = CW / 2, cy = CH / 2, rh = ROAD_W / 2;
+            const r = 6;
+
+            const nsActive = sim.activeSide === 'NS';
+            const isGreen = sim.phase === 'GREEN';
+            const isYellow = sim.phase === 'YELLOW';
+
+            // NS lights (at top and bottom of intersection)
+            const nsColor = nsActive ? (isGreen ? '#00ff9d' : '#f59e0b') : '#ef4444';
+            const ewColor = !nsActive ? (isGreen ? '#00ff9d' : '#f59e0b') : '#ef4444';
+
+            // Top-left corner (NS)
+            ctx.save();
+            ctx.shadowColor = nsColor;
+            ctx.shadowBlur = 12;
+            ctx.fillStyle = nsColor;
+            ctx.beginPath(); ctx.arc(cx - rh - 15, cy - rh - 15, r, 0, Math.PI * 2); ctx.fill();
+            // Bottom-right (NS)
+            ctx.beginPath(); ctx.arc(cx + rh + 15, cy + rh + 15, r, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+
+            // Top-right corner (EW)
+            ctx.save();
+            ctx.shadowColor = ewColor;
+            ctx.shadowBlur = 12;
+            ctx.fillStyle = ewColor;
+            ctx.beginPath(); ctx.arc(cx + rh + 15, cy - rh - 15, r, 0, Math.PI * 2); ctx.fill();
+            // Bottom-left (EW)
+            ctx.beginPath(); ctx.arc(cx - rh - 15, cy + rh + 15, r, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+        }
+
+        function drawVehicle(v) {
+            ctx.save();
+            ctx.translate(v.x, v.y);
+            ctx.rotate(v.angle * Math.PI / 180);
+
+            const h = v.type === 'truck' ? 32 : CAR_H;
+
+            // Shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            roundRect(-v.length / 2 + 2, -h / 2 + 2, v.length, h, 6);
+            ctx.fill();
+
+            // Body
+            ctx.fillStyle = v.color;
+            roundRect(-v.length / 2, -h / 2, v.length, h, 6);
+            ctx.fill();
+
+            // Windshield (front)
+            ctx.fillStyle = 'rgba(0, 212, 255, 0.25)';
+            roundRect(v.length / 2 - 16, -h / 2 + 4, 10, h - 8, 3);
+            ctx.fill();
+
+            // Headlights (front)
+            ctx.fillStyle = 'rgba(255, 255, 220, 0.7)';
+            ctx.beginPath(); ctx.arc(v.length / 2 - 2, -h / 2 + 5, 2.5, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(v.length / 2 - 2, h / 2 - 5, 2.5, 0, Math.PI * 2); ctx.fill();
+
+            // Brake lights (rear) — shown when stopping
+            if (v.isStopping) {
+                ctx.save();
+                ctx.shadowColor = '#ef4444';
+                ctx.shadowBlur = 10;
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath(); ctx.arc(-v.length / 2 + 4, -h / 2 + 5, 3, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(-v.length / 2 + 4, h / 2 - 5, 3, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+            }
+
+            ctx.restore();
+        }
+
+        function drawFrame() {
+            ctx.clearRect(0, 0, CW, CH);
+
+            // Grass background
+            ctx.fillStyle = '#041a0f';
+            ctx.fillRect(0, 0, CW, CH);
+
+            // Grass texture
+            ctx.fillStyle = '#052e1f';
+            for (let i = 0; i < 200; i++) {
+                const gx = (i * 137.508) % CW;
+                const gy = (i * 97.131) % CH;
+                if (Math.abs(gx - CW / 2) > 80 && Math.abs(gy - CH / 2) > 80) {
+                    ctx.fillRect(gx, gy, 2, 2);
+                }
+            }
+
+            // Trees (behind roads)
+            trees.forEach(t => drawTree(t.x, t.y, t.s));
+
+            // Horizontal road
+            ctx.fillStyle = '#111a15';
+            ctx.fillRect(0, CH / 2 - ROAD_W / 2, CW, ROAD_W);
+
+            // Vertical road
+            ctx.fillRect(CW / 2 - ROAD_W / 2, 0, ROAD_W, CH);
+
+            // Intersection
+            ctx.fillStyle = '#151f18';
+            ctx.fillRect(CW / 2 - ROAD_W / 2, CH / 2 - ROAD_W / 2, ROAD_W, ROAD_W);
+
+            // Road edges (subtle)
+            ctx.strokeStyle = 'rgba(0, 255, 157, 0.06)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(0, CH / 2 - ROAD_W / 2, CW, ROAD_W);
+            ctx.strokeRect(CW / 2 - ROAD_W / 2, 0, ROAD_W, CH);
+
+            // Center lane markings
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([25, 18]);
+            ctx.beginPath(); ctx.moveTo(0, CH / 2); ctx.lineTo(CW / 2 - ROAD_W / 2, CH / 2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(CW / 2 + ROAD_W / 2, CH / 2); ctx.lineTo(CW, CH / 2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(CW / 2, 0); ctx.lineTo(CW / 2, CH / 2 - ROAD_W / 2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(CW / 2, CH / 2 + ROAD_W / 2); ctx.lineTo(CW / 2, CH); ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Crosswalks
+            drawCrosswalks();
+
+            // Stop lines
+            drawStopLines();
+
+            // Traffic light circles
+            drawTrafficLightCircles();
+
+            // Vehicles
+            sim.vehicles.forEach(v => drawVehicle(v));
+        }
+
+        // ======================== VEHICLE PHYSICS ========================
+        function normalizeVal(v, max) { return Math.min(Math.max(v / max, 0), 1); }
+
+        function spawnVehicle(dir) {
+            let x, y, vx, vy, angle;
+            switch (dir) {
+                case 'N': x = CW / 2 - 35; y = -100; vx = 0; vy = 1; angle = 90; break;
+                case 'S': x = CW / 2 + 35; y = CH + 100; vx = 0; vy = -1; angle = 270; break;
+                case 'E': x = -100; y = CH / 2 + 35; vx = 1; vy = 0; angle = 0; break;
+                case 'W': x = CW + 100; y = CH / 2 - 35; vx = -1; vy = 0; angle = 180; break;
+                default: return;
+            }
+            if (sim.vehicles.some(v => Math.abs(v.x - x) < 100 && Math.abs(v.y - y) < 100)) return;
+
+            const type = Math.random() > 0.85 ? 'truck' : 'sedan';
+            const weather = WEATHER_CFG[sim.weatherMode];
+            sim.vehicles.push({
+                id: Math.random().toString(36).substring(2, 11),
+                x, y, vx, vy, angle, dir, type,
+                length: type === 'truck' ? TRUCK_W : CAR_W,
+                maxSpeed: weather.speed * (0.8 + Math.random() * 0.4),
+                currentSpeed: 0, passed: false, waiting: 0, isStopping: false,
+                color: type === 'truck' ? '#2d4a3e' : VEHICLE_COLORS[Math.floor(Math.random() * VEHICLE_COLORS.length)]
+            });
+        }
+
+        function updateVehicles(dt) {
+            let frameEm = 0;
+            const { activeSide, phase } = sim;
+
+            sim.vehicles.forEach(v => {
+                const isGreenSide = (activeSide === 'NS' && (v.dir === 'N' || v.dir === 'S')) ||
+                    (activeSide === 'EW' && (v.dir === 'E' || v.dir === 'W'));
+
+                const slo = 160;
+                const inZone = (
+                    (v.dir === 'N' && v.y > CH / 2 - slo && v.y < CH / 2 - 80) ||
+                    (v.dir === 'S' && v.y < CH / 2 + slo && v.y > CH / 2 + 80) ||
+                    (v.dir === 'E' && v.x > CW / 2 - slo && v.x < CW / 2 - 80) ||
+                    (v.dir === 'W' && v.x < CW / 2 + slo && v.x > CW / 2 + 80)
+                );
+
+                const blocking = sim.vehicles.find(o => {
+                    if (o.id === v.id || o.dir !== v.dir) return false;
+                    const ahead = (v.dir === 'N' && o.y > v.y) || (v.dir === 'S' && o.y < v.y) ||
+                        (v.dir === 'E' && o.x > v.x) || (v.dir === 'W' && o.x < v.x);
+                    if (!ahead) return false;
+                    const dx = Math.abs(v.x - o.x), dy = Math.abs(v.y - o.y);
+                    const gap = (v.type === 'truck' || o.type === 'truck') ? 100 : 75;
+                    return (v.dir === 'N' || v.dir === 'S') ? dx < 20 && dy < gap : dy < 20 && dx < gap;
+                });
+
+                const shouldStop = (!v.passed && !isGreenSide && inZone) ||
+                    (!v.passed && isGreenSide && phase !== 'GREEN' && inZone) || !!blocking;
+
+                const target = shouldStop ? 0 : v.maxSpeed;
+                let spd = v.currentSpeed || 0;
+
+                const tMul = v.type === 'truck' ? CO2R.TRUCK_MULT : 1.0;
+                let emRate = spd < STOP_THRESH ? CO2R.IDLE * tMul
+                    : spd > (v.currentSpeed || 0) + 0.05 ? CO2R.ACCEL * tMul
+                        : CO2R.RUNNING * tMul;
+                frameEm += emRate * dt;
+
+                if (spd < target) spd = Math.min(target, spd + ACCELERATION);
+                else if (spd > target) spd = Math.max(target, spd - BRAKING);
+
+                if (!v.passed) {
+                    if ((v.dir === 'N' && v.y > CH / 2) || (v.dir === 'S' && v.y < CH / 2) ||
+                        (v.dir === 'E' && v.x > CW / 2) || (v.dir === 'W' && v.x < CW / 2)) {
+                        v.passed = true;
+                    }
+                }
+
+                v.x += shouldStop ? 0 : v.vx * spd;
+                v.y += shouldStop ? 0 : v.vy * spd;
+                v.currentSpeed = spd;
+                v.isStopping = shouldStop;
+                v.waiting = shouldStop ? (v.waiting || 0) + dt : 0;
+            });
+
+            // Remove out-of-bounds
+            sim.vehicles = sim.vehicles.filter(v => {
+                const inB = v.x > -200 && v.x < CW + 200 && v.y > -200 && v.y < CH + 200;
+                if (!inB && v.passed) sim.metrics.vehiclesPassed++;
+                return inB;
+            });
+
+            // Update lane stats
+            sim.stats = { N: 0, S: 0, E: 0, W: 0 };
+            sim.vehicles.forEach(v => { if (!v.passed) sim.stats[v.dir]++; });
+
+            sim._stepEmissions += frameEm;
+            sim.metrics.totalEmissions += frameEm;
+        }
+
+        // ======================== AI LOGIC ========================
+        function getState() {
+            const v = sim.vehicles;
+            const q = { N: 0, S: 0, E: 0, W: 0 };
+            const stopped = { N: 0, S: 0, E: 0, W: 0 };
+            let avgSpd = 0, maxWait = 0;
+
+            v.forEach(vh => {
+                if (!vh.passed) {
+                    q[vh.dir]++;
+                    avgSpd += vh.currentSpeed || 0;
+                    if ((vh.currentSpeed || 0) < STOP_THRESH) stopped[vh.dir]++;
+                    maxWait = Math.max(maxWait, vh.waiting || 0);
+                }
+            });
+            avgSpd /= v.length || 1;
+            const nsQ = q.N + q.S, ewQ = q.E + q.W;
+
+            return [
+                normalizeVal(nsQ, 20), normalizeVal(ewQ, 20),
+                normalizeVal(stopped.N + stopped.S, 20), normalizeVal(stopped.E + stopped.W, 20),
+                sim.activeSide === 'NS' ? 1 : 0,
+                sim.phase === 'GREEN' ? 1 : 0.5,
+                normalizeVal(sim.timer, MAX_GREEN), normalizeVal(avgSpd, 5),
+                WEATHER_CFG[sim.weatherMode].factor, normalizeVal(maxWait, 100),
+                normalizeVal(Math.abs(nsQ - ewQ), 20),
+                normalizeVal(Object.values(stopped).reduce((a, b) => a + b, 0), 40)
+            ];
+        }
+
+        function calculateReward() {
+            let reward = 0;
+            sim.vehicles.forEach(v => {
+                if (v.passed && !sim._passedIds.has(v.id)) {
+                    reward += REWARDS.VEHICLE_PASSED;
+                    sim._passedIds.add(v.id);
+                }
+            });
+            const totalQ = Object.values(sim.stats).reduce((a, b) => a + b, 0);
+            reward += REWARDS.QUEUE_PENALTY * totalQ;
+            reward += REWARDS.EMISSION_PENALTY * sim._stepEmissions;
+            return reward;
+        }
+
+        async function handleTimerExpired() {
+            if (!agent || agent.isDisposed) return;
+
+            const currentState = getState();
+            const reward = calculateReward();
+            sim._epReward += reward;
+
+            // Learning
+            if (sim._lastState && sim._lastAction !== null) {
+                const done = sim._stepCount >= 100;
+                agent.remember(sim._lastState, sim._lastAction, reward, currentState, done);
+                await agent.replay();
+
+                if (done) {
+                    sim.metrics.rewardHistory.push(sim._epReward);
+                    if (sim.metrics.rewardHistory.length > 50) sim.metrics.rewardHistory.shift();
+                    sim.metrics.episodes++;
+                    sim._epReward = 0;
+                    sim._stepCount = 0;
+                    sim._passedIds.clear();
+                }
+            }
+
+            // AI action
+            const actionIdx = sim.phase === 'GREEN' ? agent.act(currentState) : 0;
+            const qValues = agent.getQValues(currentState);
+
+            let nextDuration = MIN_GREEN, nextPhase = sim.phase, nextSide = sim.activeSide;
+
+            if (sim.phase === 'GREEN') {
+                if (actionIdx === 0) { nextPhase = 'YELLOW'; nextDuration = YELLOW_TIME; }
+                else if (actionIdx === 1) { nextPhase = 'GREEN'; nextDuration = 5; }
+                else { nextPhase = 'GREEN'; nextDuration = 10; }
+            } else {
+                nextPhase = 'GREEN';
+                nextSide = sim.activeSide === 'NS' ? 'EW' : 'NS';
+                nextDuration = MIN_GREEN;
+            }
+
+            sim.phase = nextPhase;
+            sim.activeSide = nextSide;
+            sim.timer = nextDuration;
+            sim._lastState = currentState;
+            sim._lastAction = actionIdx;
+            sim._stepCount++;
+            sim._stepEmissions = 0;
+            sim.step++;
+
+            sim.aiDecision = {
+                action: ACTIONS[actionIdx],
+                qValues: qValues,
+                confidence: ((1 - agent.epsilon) * 100).toFixed(0)
+            };
+
+            sim.metrics.epsilon = agent.epsilon;
+            sim.metrics.avgLoss = agent.getAverageLoss();
+            sim.metrics.episodeReward = sim._epReward;
+
+            // Push AI decision log
+            pushAILog(actionIdx, reward, qValues);
+            updateXAI(actionIdx);
+        }
+
+        // ======================== UI UPDATES ========================
+        const neuralLog = document.getElementById('neural-log');
+
+        function pushLog(type, msg) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const ts = new Date().toLocaleTimeString('en-GB', { hour12: false });
+            entry.innerHTML = `<span class="log-timestamp">[${ts}]</span><span class="log-type ${type}">${type}</span><span>${msg}</span>`;
+            neuralLog.prepend(entry);
+            if (neuralLog.children.length > 25) neuralLog.lastChild.remove();
+        }
+
+        function pushAILog(actionIdx, reward, qValues) {
+            const actionName = ACTIONS[actionIdx];
+            const side = sim.activeSide === 'NS' ? 'North-South' : 'East-West';
+
+            if (actionIdx === 0) {
+                pushLog('policy', `POLICY_AGENT: Phase SWITCH → ${side} traffic. R: ${reward.toFixed(1)}`);
+            } else if (actionIdx === 1) {
+                pushLog('policy', `POLICY_AGENT: EXTEND phase 5s for ${side}. R: ${reward.toFixed(1)}`);
+            } else {
+                pushLog('policy', `POLICY_AGENT: EXTEND phase 10s for ${side}. R: ${reward.toFixed(1)}`);
+            }
+
+            const maxQ = Math.max(...qValues).toFixed(2);
+            pushLog('reward', `REWARD_LOG: Episode reward ${sim._epReward.toFixed(1)}, maxQ: ${maxQ}`);
+        }
+
+        function updateXAI(actionIdx) {
+            const el = document.getElementById('xai-text');
+            const side = sim.activeSide === 'NS' ? 'North-South' : 'East-West';
+            const otherSide = sim.activeSide === 'NS' ? 'East-West' : 'North-South';
+            const nsQ = sim.stats.N + sim.stats.S;
+            const ewQ = sim.stats.E + sim.stats.W;
+            const activeQ = sim.activeSide === 'NS' ? nsQ : ewQ;
+            const otherQ = sim.activeSide === 'NS' ? ewQ : nsQ;
+
+            const xaiTexts = [
+                `Phase <span class="xai-highlight">${ACTIONS[actionIdx].replace('_', ' ')}</span> applied for <span class="xai-highlight blue">${side}</span> corridor. Queue balance: <span class="xai-highlight amber">${activeQ}</span> vs ${otherQ} vehicles. CO₂ this step: <span class="xai-highlight">${sim._stepEmissions.toFixed(1)}g</span>.`,
+                `DQN selected <span class="xai-highlight">${ACTIONS[actionIdx].replace('_', ' ')}</span>. Current <span class="xai-highlight blue">${side}</span> has ${activeQ} waiting. <span class="xai-highlight amber">${otherSide}</span> queue at ${otherQ}. Epsilon: <span class="xai-highlight purple">${(sim.metrics.epsilon * 100).toFixed(1)}%</span>.`,
+                `Neural agent optimizing for <span class="xai-highlight blue">${side}</span> flow. Action confidence <span class="xai-highlight">${sim.aiDecision.confidence}%</span>. Balancing <span class="xai-highlight amber">emission reduction</span> vs throughput priority.`,
+                `Autonomous decision: <span class="xai-highlight">${ACTIONS[actionIdx].replace('_', ' ')}</span>. Total vehicles passed: <span class="xai-highlight blue">${sim.metrics.vehiclesPassed}</span>. Episodes completed: <span class="xai-highlight purple">${sim.metrics.episodes}</span>.`
+            ];
+            el.innerHTML = xaiTexts[Math.floor(Math.random() * xaiTexts.length)];
+        }
+
+        function updateTrafficHUD() {
+            const nsActive = sim.activeSide === 'NS';
+            const isGreen = sim.phase === 'GREEN';
+            const isYellow = sim.phase === 'YELLOW';
+
+            // NS HUD
+            const nsHud = document.getElementById('ns-hud');
+            const nsTimer = document.getElementById('ns-timer');
+            nsHud.className = 'traffic-hud ' + (nsActive ? 'active' : 'inactive');
+            nsTimer.textContent = nsActive ? Math.max(0, sim.timer).toString().padStart(2, '0') : '--';
+            nsTimer.className = 'traffic-hud-timer ' + (nsActive ? 'neon-text' : '');
+            nsTimer.style.color = nsActive ? '' : '#333';
+
+            document.getElementById('ns-g').className = 'thd' + (nsActive && isGreen ? ' g-on' : '');
+            document.getElementById('ns-y').className = 'thd' + (nsActive && isYellow ? ' y-on' : '');
+            document.getElementById('ns-r').className = 'thd' + (!nsActive ? ' r-on' : '');
+
+            // EW HUD
+            const ewHud = document.getElementById('ew-hud');
+            const ewTimer = document.getElementById('ew-timer');
+            ewHud.className = 'traffic-hud ' + (!nsActive ? 'active' : 'inactive');
+            ewTimer.textContent = !nsActive ? Math.max(0, sim.timer).toString().padStart(2, '0') : '--';
+            ewTimer.className = 'traffic-hud-timer ' + (!nsActive ? 'neon-text' : '');
+            ewTimer.style.color = !nsActive ? '' : '#333';
+
+            document.getElementById('ew-g').className = 'thd' + (!nsActive && isGreen ? ' g-on' : '');
+            document.getElementById('ew-y').className = 'thd' + (!nsActive && isYellow ? ' y-on' : '');
+            document.getElementById('ew-r').className = 'thd' + (nsActive ? ' r-on' : '');
+        }
+
+        function updateMetricCards() {
+            document.getElementById('metric-throughput').textContent = sim.metrics.vehiclesPassed;
+            document.getElementById('metric-throughput-sub').textContent = `Active: ${sim.vehicles.length}`;
+            document.getElementById('metric-epsilon').textContent = (sim.metrics.epsilon * 100).toFixed(1) + '%';
+            document.getElementById('metric-co2').textContent = sim.metrics.totalEmissions.toFixed(1) + 'g';
+            document.getElementById('metric-episodes').textContent = sim.metrics.episodes;
+            document.getElementById('episodes-bar').style.width = Math.min(100, sim.metrics.episodes * 2) + '%';
+        }
+
+        function updateAgentStatusGrid() {
+            const dirs = ['n', 's', 'e', 'w'];
+            const dirKeys = ['N', 'S', 'E', 'W'];
+            dirs.forEach((d, i) => {
+                const count = sim.stats[dirKeys[i]];
+                const el = document.getElementById(`agent-${d}`);
+                const statusEl = document.getElementById(`agent-${d}-status`);
+                if (count === 0) {
+                    el.className = 'text-center p-2 bg-green-500/10 rounded-lg border border-green-500/20';
+                    statusEl.textContent = 'Idle';
+                } else if (count < 5) {
+                    el.className = 'text-center p-2 bg-green-500/10 rounded-lg border border-green-500/20';
+                    statusEl.textContent = `Flow: ${count}`;
+                } else if (count < 10) {
+                    el.className = 'text-center p-2 bg-amber-500/10 rounded-lg border border-amber-500/20';
+                    statusEl.textContent = `Busy: ${count}`;
+                } else {
+                    el.className = 'text-center p-2 bg-red-500/10 rounded-lg border border-red-500/20';
+                    statusEl.textContent = `Alert: ${count}`;
+                }
+            });
+
+            document.getElementById('agent-eps-val').textContent = (sim.metrics.epsilon * 100).toFixed(0) + '%';
+            document.getElementById('agent-loss-val').textContent = sim.metrics.avgLoss.toFixed(3);
+            document.getElementById('agent-q-val').textContent = Math.max(...sim.aiDecision.qValues).toFixed(2);
+            document.getElementById('agent-ai-status').textContent = sim.isPaused ? 'Paused' : 'Active';
+        }
+
+        function updateRightPanel() {
+            // Token value = vehicles passed * 0.5
+            const tokens = (sim.metrics.vehiclesPassed * 0.5).toFixed(1);
+            document.getElementById('token-value').textContent = tokens;
+            document.getElementById('minting-rate').textContent = `+${(sim.metrics.vehiclesPassed > 0 ? (sim.vehicles.length * 0.3) : 0).toFixed(1)}/min`;
+
+            // Confidence bar
+            document.getElementById('confidence-bar').style.width = sim.aiDecision.confidence + '%';
+            document.getElementById('confidence-value').textContent = sim.aiDecision.confidence + '%';
+        }
+
+        function updateFooter() {
+            const s1 = parseInt(document.getElementById('slider-1').value);
+            const s2 = parseInt(document.getElementById('slider-2').value);
+            const s3 = parseInt(document.getElementById('slider-3').value);
+            const total = s1 + s2 + s3 || 1;
+            const alpha = (s1 / total).toFixed(2);
+            const beta = (s2 / total).toFixed(2);
+            const gamma = (s3 / total).toFixed(2);
+
+            document.getElementById('weight-alpha').textContent = alpha;
+            document.getElementById('weight-beta').textContent = beta;
+            document.getElementById('weight-gamma').textContent = gamma;
+            document.getElementById('total-reward').textContent = (sim.metrics.episodeReward >= 0 ? '+' : '') + sim.metrics.episodeReward.toFixed(2);
+        }
+
+        function updateWeatherOverlay() {
+            const overlay = document.getElementById('weather-overlay');
+            switch (sim.weatherMode) {
+                case 'RAIN':
+                    overlay.style.background = 'rgba(0, 80, 160, 0.08)';
+                    overlay.style.backdropFilter = 'blur(0.5px)';
+                    break;
+                case 'FOG':
+                    overlay.style.background = 'rgba(80, 100, 80, 0.12)';
+                    overlay.style.backdropFilter = 'blur(1px)';
+                    break;
+                default:
+                    overlay.style.background = 'transparent';
+                    overlay.style.backdropFilter = 'none';
+            }
+        }
+
+        // ======================== MAIN LOOPS ========================
+        function gameLoop() {
+            if (!sim.isPaused) {
+                const now = Date.now();
+                const dt = Math.min((now - sim._lastEmUpdate) / 1000, 0.1);
+                sim._lastEmUpdate = now;
+                updateVehicles(dt);
+                drawFrame();
+            } else {
+                drawFrame(); // still render when paused
+            }
+            animFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function startTimerLoop() {
+            if (timerIntervalId) clearInterval(timerIntervalId);
+            timerIntervalId = setInterval(() => {
+                if (sim.isPaused) return;
+                if (sim.timer <= 1) {
+                    handleTimerExpired();
+                } else {
+                    sim.timer--;
+                }
+                updateTrafficHUD();
+            }, Math.round(1000 / sim.speedMult));
+        }
+
+        function startSpawnLoop() {
+            if (spawnIntervalId) clearInterval(spawnIntervalId);
+            const density = parseInt(document.getElementById('slider-1').value);
+            const interval = Math.max(400, 2000 - density * 16);
+            spawnIntervalId = setInterval(() => {
+                if (sim.isPaused || !sim.autoSpawn) return;
+                const dirs = ['N', 'S', 'E', 'W'];
+                spawnVehicle(dirs[Math.floor(Math.random() * dirs.length)]);
+            }, interval);
+        }
+
+        // ======================== EVENT HANDLERS ========================
+        function wireEvents() {
+            // Sliders
+            document.getElementById('slider-1').addEventListener('input', function () {
+                document.getElementById('slider-val-1').textContent = this.value + '%';
+                startSpawnLoop(); // restart with new density
+            });
+            document.getElementById('slider-2').addEventListener('input', function () {
+                document.getElementById('slider-val-2').textContent = this.value + '%';
+                updateFooter();
+            });
+            document.getElementById('slider-3').addEventListener('input', function () {
+                document.getElementById('slider-val-3').textContent = this.value + '%';
+                updateFooter();
+            });
+
+            // Pause button
+            document.getElementById('sim-pause-btn').addEventListener('click', togglePause);
+            document.getElementById('btn-play').addEventListener('click', togglePause);
+
+            // Reset
+            document.getElementById('sim-reset-btn').addEventListener('click', resetSimulation);
+            document.getElementById('btn-reset-twin').addEventListener('click', resetSimulation);
+
+            // Execute policy
+            document.getElementById('btn-execute-policy').addEventListener('click', () => {
+                handleTimerExpired();
+                pushLog('sync', 'POLICY_ENGINE: Forced policy execution from sandbox.');
+            });
+
+            // Weather buttons
+            document.querySelectorAll('.weather-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.weather-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    sim.weatherMode = this.dataset.weather;
+                    // Update vehicle max speeds
+                    const weather = WEATHER_CFG[sim.weatherMode];
+                    sim.vehicles.forEach(v => {
+                        v.maxSpeed = weather.speed * (0.8 + Math.random() * 0.4);
+                    });
+                    updateWeatherOverlay();
+                    pushLog('sync', `WEATHER_SYS: Conditions changed to ${weather.name}. Speed factor: ${weather.factor}`);
+                });
+            });
+
+            // Scenario tabs
+            document.querySelectorAll('.scenario-tab').forEach(tab => {
+                tab.addEventListener('click', function () {
+                    document.querySelectorAll('.scenario-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    const scenario = this.dataset.scenario;
+                    if (scenario === 'rush') {
+                        document.getElementById('slider-1').value = 85;
+                        document.getElementById('slider-val-1').textContent = '85%';
+                        startSpawnLoop();
+                        pushLog('alert', 'SCENARIO: Rush Hour mode activated. High density traffic.');
+                    } else if (scenario === 'emergency') {
+                        pushLog('alert', 'SCENARIO: Emergency mode. Priority corridors active.');
+                    } else if (scenario === 'event') {
+                        document.getElementById('slider-1').value = 70;
+                        document.getElementById('slider-val-1').textContent = '70%';
+                        startSpawnLoop();
+                        pushLog('alert', 'SCENARIO: Event mode. Elevated traffic from East-West.');
+                    } else {
+                        document.getElementById('slider-1').value = 45;
+                        document.getElementById('slider-val-1').textContent = '45%';
+                        startSpawnLoop();
+                        pushLog('sync', 'SCENARIO: Normal flow restored.');
+                    }
+                });
+            });
+
+            // Speed controls
+            document.getElementById('btn-slow').addEventListener('click', function () {
+                sim.speedMult = 0.5;
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                startTimerLoop();
+            });
+            document.getElementById('btn-fast').addEventListener('click', function () {
+                sim.speedMult = 2;
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                startTimerLoop();
+            });
+
+            // Emergency override
+            document.getElementById('btn-emergency').addEventListener('click', () => {
+                sim.phase = 'GREEN';
+                sim.activeSide = 'NS';
+                sim.timer = 30;
+                pushLog('alert', 'EMERGENCY: Override activated! NS corridor forced GREEN for 30s.');
+            });
+        }
+
+        function togglePause() {
+            sim.isPaused = !sim.isPaused;
+            const icon = document.getElementById('pause-icon');
+            const overlay = document.getElementById('pause-overlay');
+            const playBtn = document.getElementById('btn-play');
+
+            if (sim.isPaused) {
+                icon.className = 'fas fa-play';
+                overlay.classList.add('visible');
+                playBtn.innerHTML = '<i class="fas fa-play text-xs"></i>';
+                playBtn.classList.add('active');
+                document.getElementById('sync-text').textContent = 'Twin Sync: Paused';
+                document.getElementById('sync-badge').className = 'status-badge warning';
+            } else {
+                icon.className = 'fas fa-pause';
+                overlay.classList.remove('visible');
+                playBtn.innerHTML = '<i class="fas fa-pause text-xs"></i>';
+                document.getElementById('sync-text').textContent = 'Twin Sync: Active';
+                document.getElementById('sync-badge').className = 'status-badge online';
+                sim._lastEmUpdate = Date.now();
+            }
+        }
+
+        function resetSimulation() {
+            sim.timer = MIN_GREEN;
+            sim.phase = 'GREEN';
+            sim.activeSide = 'NS';
+            sim.vehicles = [];
+            sim.step = 0;
+            sim.stats = { N: 0, S: 0, E: 0, W: 0 };
+            sim.metrics = {
+                totalEmissions: 0, vehiclesPassed: 0, episodeReward: 0,
+                avgLoss: 0, epsilon: agent ? agent.epsilon : INITIAL_EPSILON,
+                episodes: 0, rewardHistory: []
+            };
+            sim._epReward = 0;
+            sim._lastState = null;
+            sim._lastAction = null;
+            sim._stepCount = 0;
+            sim._passedIds.clear();
+            sim._stepEmissions = 0;
+
+            pushLog('sync', 'SYSTEM: Twin parity reset. All metrics cleared.');
+            updateTrafficHUD();
+            updateMetricCards();
+            updateAgentStatusGrid();
+            updateRightPanel();
+            updateFooter();
+        }
+
+        // ======================== SPARKLINE ========================
+        function initSparkline() {
+            const sparkline = document.getElementById('co2-sparkline');
+            sparkline.innerHTML = '';
+            for (let i = 0; i < 12; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'sparkline-bar';
+                bar.style.height = '5%';
+                sparkline.appendChild(bar);
+            }
+        }
+
+        function updateSparkline() {
+            const bars = document.querySelectorAll('#co2-sparkline .sparkline-bar');
+            if (bars.length === 0) return;
+            // Shift bars left, add new value
+            for (let i = 0; i < bars.length - 1; i++) {
+                bars[i].style.height = bars[i + 1].style.height;
+            }
+            const lastVal = Math.min(100, sim.metrics.totalEmissions * 0.5);
+            bars[bars.length - 1].style.height = Math.max(5, lastVal) + '%';
+        }
+
+        // ======================== PERIODIC UPDATES ========================
+        function startPeriodicUpdates() {
+            // UI metrics update
+            setInterval(() => {
+                updateMetricCards();
+                updateAgentStatusGrid();
+                updateRightPanel();
+                updateFooter();
+                document.getElementById('episode-counter').textContent = '#' + sim.metrics.episodes;
+            }, 1000);
+
+            // Latency simulation
+            setInterval(() => {
+                const lat = 10 + Math.floor(Math.random() * 8);
+                document.getElementById('latency').textContent = lat + 'ms';
+            }, 3000);
+
+            // Sparkline update
+            setInterval(updateSparkline, 2000);
+
+            // Background log events
+            setInterval(() => {
+                if (sim.isPaused) return;
+                const bgLogs = [
+                    { type: 'sync', msg: `TWIN_PARITY: Processing synthetic edge-case ${Math.floor(Math.random() * 999)}.` },
+                    { type: 'mint', msg: `CITIZEN_API: Minting ${(sim.metrics.vehiclesPassed * 0.02).toFixed(2)} green tokens.` },
+                    { type: 'sync', msg: `CONSENSUS: All lanes aligned at ${(0.95 + Math.random() * 0.05).toFixed(2)} agreement.` },
+                    { type: 'reward', msg: `CO2_TRACKER: ${sim.metrics.totalEmissions.toFixed(1)}g total emissions logged.` }
+                ];
+                const log = bgLogs[Math.floor(Math.random() * bgLogs.length)];
+                pushLog(log.type, log.msg);
+            }, 4000);
+
+            // Sim clock
+            let simSec = 52367;
+            setInterval(() => {
+                if (sim.isPaused) return;
+                simSec++;
+                const h = Math.floor(simSec / 3600) % 24;
+                const m = Math.floor((simSec % 3600) / 60);
+                const s = simSec % 60;
+                document.getElementById('sim-time').textContent =
+                    `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // ======================== INITIALIZATION ========================
+        const loaderStatuses = [
+            "Connecting to MARL agents...",
+            "Loading TensorFlow.js runtime...",
+            "Initializing DQN neural network...",
+            "Calibrating reward functions...",
+            "Spawning traffic simulation...",
+            "System ready."
+        ];
+
+        let statusIdx = 0;
+        const statusIv = setInterval(() => {
+            if (statusIdx < loaderStatuses.length) {
+                document.getElementById('loader-status').textContent = loaderStatuses[statusIdx];
+                statusIdx++;
+            }
+        }, 400);
+
+        // Custom Cursor
+        const dot = document.getElementById("cursor-dot");
+        const outline = document.getElementById("cursor-outline");
+
+        document.addEventListener("mousemove", (e) => {
+            const { clientX: x, clientY: y } = e;
+            dot.style.left = x + "px";
+            dot.style.top = y + "px";
+            outline.animate({ left: x + "px", top: y + "px" }, { duration: 400, fill: "forwards" });
+        });
+
+        document.addEventListener("mousedown", () => dot.classList.add('clicking'));
+        document.addEventListener("mouseup", () => dot.classList.remove('clicking'));
+
+        // Hover effects for cursor
+        function setupHoverEffects() {
+            const els = document.querySelectorAll('a, button, input, .scenario-tab, .time-btn, .metric-card, .weather-btn');
+            els.forEach(el => {
+                el.addEventListener('mouseenter', () => outline.classList.add('hovering'));
+                el.addEventListener('mouseleave', () => outline.classList.remove('hovering'));
+            });
+        }
+
+        // Main init
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                clearInterval(statusIv);
+                document.getElementById('preloader').classList.add('hidden');
+                initSimulation();
+            }, 2500);
+        });
+
+        function initSimulation() {
+            // Init DQN agent
+            if (typeof tf !== 'undefined') {
+                try {
+                    agent = new DQNAgent();
+                    pushLog('sync', 'DQN_CORE: Neural network initialized. Double DQN with HeNormal.');
+                    document.getElementById('agent-ai-status').textContent = 'Online';
+                } catch (e) {
+                    console.error('Failed to init DQN:', e);
+                    pushLog('alert', 'DQN_CORE: Failed to initialize. Running random policy.');
+                }
+            } else {
+                pushLog('alert', 'TF_RUNTIME: TensorFlow.js unavailable. Random policy mode.');
+            }
+
+            // Generate trees
+            generateTrees();
+
+            // Init sparkline
+            initSparkline();
+
+            // Start loops
+            sim._lastEmUpdate = Date.now();
+            animFrameId = requestAnimationFrame(gameLoop);
+            startTimerLoop();
+            startSpawnLoop();
+
+            // Wire events
+            wireEvents();
+            setupHoverEffects();
+
+            // Start periodic UI updates
+            startPeriodicUpdates();
+
+            // Initial UI state
+            updateTrafficHUD();
+            updateWeatherOverlay();
+            updateFooter();
+
+            // Initial logs
+            pushLog('sync', 'SYSTEM: Neural Twin Sandbox online. Simulation running.');
+            pushLog('reward', 'REWARD_SYS: Multi-objective function active. α=Wait, β=CO₂, γ=Safety.');
+
+            // 3D Card Tilt & Mouse Tracking
+            document.querySelectorAll('.cyber-panel').forEach(card => {
+                card.style.transformStyle = 'preserve-3d';
+                card.style.perspective = '1000px';
+
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((centerY - y) / centerY) * 4;
+                    const rotateY = ((x - centerX) / centerX) * 4;
+
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`;
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                });
+
+                // Add depth to inner elements
+                const innerElements = card.querySelectorAll('.panel-header, .stat-value, .metric-value, .chart-container');
+                innerElements.forEach(el => {
+                    el.style.transform = 'translateZ(15px)';
+                    el.style.transition = 'transform 0.3s ease-out';
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>

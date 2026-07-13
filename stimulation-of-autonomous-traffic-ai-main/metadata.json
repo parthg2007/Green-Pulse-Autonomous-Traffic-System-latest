@@ -1,0 +1,5 @@
+{
+  "name": "Neural Traffic Control AI",
+  "description": "An advanced traffic intersection simulation powered by Deep Q-Learning (DQN). The AI agent learns to optimize traffic flow, reduce vehicle wait times, and minimize CO2 emissions using TensorFlow.js.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green-Pulse | Carbon FinTech Model</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --gold-start: #d4af37;
+            --gold-mid: #f5d485;
+            --gold-end: #b8860b;
+            --amber-accent: #ff9500;
+            --bg-primary: #fafafa;
+            --bg-secondary: #ffffff;
+            --text-primary: #0a0a0a;
+            --text-secondary: #525252;
+            --text-muted: #a3a3a3;
+            --border-subtle: rgba(0, 0, 0, 0.06);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+        }
+
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            background: linear-gradient(180deg, var(--bg-primary) 0%, #f0f0f0 100%);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+            cursor: none;
+            min-height: 100vh;
+            letter-spacing: -0.01em;
+        }
+
+        .brand-font {
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.03em;
+        }
+
+        .mono-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Subtle Background Pattern */
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 25% 25%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(212, 175, 55, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Custom Cursor */
+        #cursor-dot {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: var(--text-primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            transition: transform 0.15s ease, background 0.3s ease;
+        }
+
+        #cursor-dot.hovering {
+            transform: translate(-50%, -50%) scale(1.5);
+            background: var(--gold-start);
+        }
+
+        #cursor-outline {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 1.5px solid rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        #cursor-outline.hovering {
+            width: 56px;
+            height: 56px;
+            border-color: var(--gold-start);
+            background: rgba(212, 175, 55, 0.08);
+        }
+
+        /* Gold Gradient Text */
+        .gold-gradient {
+            background: linear-gradient(135deg, var(--gold-start) 0%, var(--gold-mid) 25%, var(--gold-end) 50%, var(--gold-mid) 75%, var(--gold-start) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 0% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        /* Static Gold Gradient for smaller elements */
+        .gold-gradient-static {
+            background: linear-gradient(135deg, var(--gold-start) 0%, var(--gold-mid) 50%, var(--gold-end) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow:
+                0 4px 24px rgba(0, 0, 0, 0.04),
+                0 1px 2px rgba(0, 0, 0, 0.02),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+        }
+
+        .glass-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            padding: 1px;
+            background: linear-gradient(135deg, transparent 0%, rgba(212, 175, 55, 0) 40%, rgba(212, 175, 55, 0.3) 50%, rgba(212, 175, 55, 0) 60%, transparent 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .glass-card:hover::after {
+            opacity: 1;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px);
+            box-shadow:
+                0 24px 48px rgba(0, 0, 0, 0.08),
+                0 12px 24px rgba(0, 0, 0, 0.04),
+                0 0 0 1px rgba(212, 175, 55, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .glass-card:hover .card-icon {
+            transform: scale(1.1) rotate(-3deg);
+        }
+
+        .card-icon {
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Premium Dark Section */
+        .premium-section {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+            border-radius: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .premium-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3), transparent);
+        }
+
+        .premium-section::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(212, 175, 55, 0.05) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        /* Data Dashboard Card */
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        }
+
+        /* Sparkline SVG */
+        .sparkline-path {
+            stroke: url(#goldGradient);
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 200;
+            stroke-dashoffset: 200;
+            animation: draw-line 2s ease forwards;
+        }
+
+        .sparkline-area {
+            fill: url(#goldGradientFill);
+            opacity: 0;
+            animation: fade-in 1s ease 1.5s forwards;
+        }
+
+        .sparkline-dot {
+            fill: var(--gold-start);
+            opacity: 0;
+            animation: pop-in 0.3s ease 2s forwards;
+        }
+
+        @keyframes draw-line {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes fade-in {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pop-in {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.3);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Metric Rows */
+        .metric-row {
+            transition: all 0.3s ease;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .metric-row:hover {
+            padding-left: 8px;
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.05), transparent);
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Tag Pills */
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .tag-pill:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Navigation */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--gold-start);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Footer Terminal */
+        .terminal-footer {
+            background: #0a0a0a;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .terminal-line {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }
+
+        .terminal-line:hover {
+            opacity: 1;
+        }
+
+        .terminal-prompt {
+            color: var(--gold-start);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+
+            #cursor-dot,
+            #cursor-outline {
+                display: none;
+            }
+
+            body {
+                cursor: auto;
+            }
+        }
+
+        /* Number Counter Animation */
+        .counter-value {
+            display: inline-block;
+        }
+
+        /* Subtle Grid Lines */
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-pattern"></div>
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 lg:px-20 py-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-4 group nav-link">
+                <div
+                    class="w-10 h-10 rounded-xl bg-white/80 backdrop-blur-sm border border-black/5 flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+                    <i
+                        class="fas fa-arrow-left text-sm text-neutral-400 group-hover:text-neutral-900 transition-colors"></i>
+                </div>
+                <div class="hidden sm:block">
+                    <span class="brand-font font-semibold text-sm uppercase tracking-tight block">Finance Core</span>
+                    <span class="mono-font text-[10px] text-neutral-400">v2.0 — Carbon Markets</span>
+                </div>
+            </a>
+
+            <div class="flex items-center gap-8">
+                <div class="hidden lg:flex items-center gap-6">
+                    <a href="index.html"
+                        class="text-xs uppercase tracking-wider text-neutral-500 hover:text-neutral-900 transition">Home</a>
+                    <a href="crisis.html"
+                        class="text-xs uppercase tracking-wider text-neutral-500 hover:text-neutral-900 transition">Crisis</a>
+                    <a href="simulation.html"
+                        class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Sandbox</a>
+                    <a href="tech.html"
+                        class="text-xs uppercase tracking-wider text-neutral-500 hover:text-neutral-900 transition">Tech</a>
+                    <a href="business.html"
+                        class="text-xs uppercase tracking-wider text-neutral-900 font-bold transition">Business</a>
+                    <a href="roadmap.html"
+                        class="text-xs uppercase tracking-wider text-neutral-500 hover:text-neutral-900 transition">Roadmap</a>
+                </div>
+                <a href="simulation.html"
+                    class="px-5 py-2.5 bg-neutral-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-neutral-800 transition-colors flex items-center gap-2">
+                    <i class="fas fa-network-wired"></i> View Simulation
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-32 pb-20 px-6 md:px-12 lg:px-20">
+        <div class="max-w-7xl mx-auto">
+
+            <!-- Hero Section -->
+            <header class="text-center mb-32 max-w-4xl mx-auto">
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200/50 rounded-full mb-8">
+                    <i class="fas fa-certificate text-amber-600 text-xs"></i>
+                    <span class="text-xs font-medium text-amber-700 uppercase tracking-wider">Verified Carbon
+                        Credits</span>
+                </div>
+
+                <h1 class="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold brand-font leading-[0.95] mb-10">
+                    MINTING<br>
+                    <span class="gold-gradient italic">SUSTAINABILITY</span>
+                </h1>
+
+                <p
+                    class="text-lg md:text-xl text-neutral-500 max-w-2xl mx-auto font-light leading-relaxed tracking-tight">
+                    We transform urban efficiency into tradeable financial assets. By mathematically linking traffic
+                    flow to carbon reduction, we create a
+                    <span class="text-neutral-900 font-medium">self-financing ecosystem</span> for sustainable cities.
+                </p>
+
+                <div class="flex flex-wrap justify-center gap-4 mt-12">
+                    <a href="#model"
+                        class="px-8 py-4 bg-neutral-900 text-white text-sm font-medium rounded-full hover:bg-neutral-800 transition-all hover:shadow-lg hover:shadow-neutral-900/20">
+                        <i class="fas fa-coins mr-2"></i>Explore Revenue Model
+                    </a>
+                    <a href="roadmap.html"
+                        class="px-8 py-4 border border-neutral-200 text-neutral-700 text-sm font-medium rounded-full hover:border-neutral-300 hover:bg-neutral-50 transition-all">
+                        View Roadmap <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Revenue Streams Grid -->
+            <section id="model" class="mb-32">
+                <div class="text-center mb-16">
+                    <span class="text-[10px] mono-font text-neutral-400 uppercase tracking-[0.3em] block mb-3">Revenue
+                        Architecture</span>
+                    <h2 class="text-3xl md:text-4xl font-bold brand-font">Three Pillars of Value</h2>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+
+                    <!-- Card 1: Carbon Minting -->
+                    <div class="glass-card p-8 md:p-10 group">
+                        <div class="flex items-start justify-between mb-10">
+                            <div
+                                class="card-icon w-14 h-14 bg-gradient-to-br from-amber-100 to-amber-50 rounded-2xl flex items-center justify-center shadow-sm">
+                                <i class="fas fa-coins text-xl text-amber-600"></i>
+                            </div>
+                            <span
+                                class="mono-font text-[9px] text-neutral-400 uppercase tracking-wider bg-neutral-100 px-3 py-1 rounded-full">Primary</span>
+                        </div>
+
+                        <h3 class="text-xl font-semibold brand-font mb-4 tracking-tight">Carbon Credit Minting</h3>
+
+                        <p class="text-sm text-neutral-500 leading-relaxed mb-8">
+                            Verified CO₂ savings from optimized traffic flow are algorithmically converted into
+                            tradeable credits or "Green Tokens" — creating tangible value from efficiency.
+                        </p>
+
+                        <div class="tag-pill bg-amber-50 text-amber-700 border border-amber-200/50">
+                            <i class="fas fa-chart-line text-[8px]"></i>
+                            High-Margin Transaction Fees
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-neutral-100">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-neutral-400">Projected Margin</span>
+                                <span class="text-sm font-semibold gold-gradient-static">42%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Data-as-a-Service -->
+                    <div class="glass-card p-8 md:p-10 group">
+                        <div class="flex items-start justify-between mb-10">
+                            <div
+                                class="card-icon w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center shadow-sm">
+                                <i class="fas fa-database text-xl text-blue-600"></i>
+                            </div>
+                            <span
+                                class="mono-font text-[9px] text-neutral-400 uppercase tracking-wider bg-neutral-100 px-3 py-1 rounded-full">Recurring</span>
+                        </div>
+
+                        <h3 class="text-xl font-semibold brand-font mb-4 tracking-tight">Predictive Data API</h3>
+
+                        <p class="text-sm text-neutral-500 leading-relaxed mb-8">
+                            Enterprise-grade traffic intelligence for logistics giants and mapping platforms. Real-time
+                            predictions that save fuel costs and delivery time.
+                        </p>
+
+                        <div class="tag-pill bg-blue-50 text-blue-700 border border-blue-200/50">
+                            <i class="fas fa-rotate text-[8px]"></i>
+                            Recurring SaaS Revenue
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-neutral-100">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-neutral-400">API Calls / Month</span>
+                                <span class="text-sm font-semibold text-blue-600">2.4B+</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Asset Recycling -->
+                    <div class="glass-card p-8 md:p-10 group md:col-span-2 lg:col-span-1">
+                        <div class="flex items-start justify-between mb-10">
+                            <div
+                                class="card-icon w-14 h-14 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-2xl flex items-center justify-center shadow-sm">
+                                <i class="fas fa-city text-xl text-emerald-600"></i>
+                            </div>
+                            <span
+                                class="mono-font text-[9px] text-neutral-400 uppercase tracking-wider bg-neutral-100 px-3 py-1 rounded-full">Scalable</span>
+                        </div>
+
+                        <h3 class="text-xl font-semibold brand-font mb-4 tracking-tight">Infrastructure Recycling</h3>
+
+                        <p class="text-sm text-neutral-500 leading-relaxed mb-8">
+                            Our modular AI layer integrates with existing traffic hardware — no expensive infrastructure
+                            replacement. Software-first scalability.
+                        </p>
+
+                        <div class="tag-pill bg-emerald-50 text-emerald-700 border border-emerald-200/50">
+                            <i class="fas fa-microchip text-[8px]"></i>
+                            Low CAPEX Deployment
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-neutral-100">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-neutral-400">Hardware Savings</span>
+                                <span class="text-sm font-semibold text-emerald-600">78%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Premium Investment Section -->
+            <section class="premium-section p-10 md:p-16 lg:p-20 mb-32 relative">
+                <div class="grid-overlay"></div>
+
+                <div class="relative z-10 grid lg:grid-cols-5 gap-12 lg:gap-16 items-start">
+
+                    <!-- Left Content -->
+                    <div class="lg:col-span-3">
+                        <div
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-8">
+                            <i class="fas fa-rocket text-amber-400 text-xs"></i>
+                            <span class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Scale
+                                Play</span>
+                        </div>
+
+                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold brand-font text-white mb-8 leading-tight">
+                            The $1B<br>
+                            <span class="gold-gradient-static">Scalability</span> Thesis
+                        </h2>
+
+                        <p class="text-neutral-400 text-lg leading-relaxed mb-12 max-w-xl">
+                            By utilizing <span class="text-white font-medium">Transfer Learning</span>, our AI model can
+                            be deployed across new cities with 90% less training time — enabling rapid national
+                            expansion without linear cost growth.
+                        </p>
+
+                        <!-- Metrics -->
+                        <div class="space-y-0">
+                            <div class="metric-row flex justify-between items-center">
+                                <span class="text-xs text-neutral-500 uppercase tracking-wider">Target 3-Year
+                                    EBITDA</span>
+                                <span class="text-lg font-semibold gold-gradient-static mono-font">$140M+</span>
+                            </div>
+                            <div class="metric-row flex justify-between items-center">
+                                <span class="text-xs text-neutral-500 uppercase tracking-wider">Customer Acquisition
+                                    Cost</span>
+                                <span class="text-lg font-semibold text-emerald-400 mono-font">-70%</span>
+                            </div>
+                            <div class="metric-row flex justify-between items-center">
+                                <span class="text-xs text-neutral-500 uppercase tracking-wider">Time to Deploy (Per
+                                    City)</span>
+                                <span class="text-lg font-semibold text-blue-400 mono-font">6 Weeks</span>
+                            </div>
+                            <div class="metric-row flex justify-between items-center">
+                                <span class="text-xs text-neutral-500 uppercase tracking-wider">Gross Margin
+                                    Target</span>
+                                <span class="text-lg font-semibold text-purple-400 mono-font">78%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Data Dashboard Card -->
+                    <div class="lg:col-span-2">
+                        <div class="dashboard-card p-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <span class="text-[10px] text-neutral-500 uppercase tracking-widest">Projected National
+                                    ROI</span>
+                                <span
+                                    class="mono-font text-[9px] text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-full flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                                    LIVE
+                                </span>
+                            </div>
+
+                            <!-- Big Number -->
+                            <div class="mb-8">
+                                <div class="text-6xl md:text-7xl font-bold brand-font gold-gradient mb-2">
+                                    12.4<span class="text-2xl">×</span>
+                                </div>
+                                <p class="text-xs text-neutral-500">Multiple on invested capital</p>
+                            </div>
+
+                            <!-- Sparkline Chart -->
+                            <div class="mb-8 h-24 relative">
+                                <svg viewBox="0 0 200 60" class="w-full h-full" preserveAspectRatio="none">
+                                    <defs>
+                                        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" style="stop-color:#d4af37" />
+                                            <stop offset="50%" style="stop-color:#f5d485" />
+                                            <stop offset="100%" style="stop-color:#d4af37" />
+                                        </linearGradient>
+                                        <linearGradient id="goldGradientFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#d4af37;stop-opacity:0.3" />
+                                            <stop offset="100%" style="stop-color:#d4af37;stop-opacity:0" />
+                                        </linearGradient>
+                                    </defs>
+
+                                    <!-- Area Fill -->
+                                    <path class="sparkline-area"
+                                        d="M0,55 L20,52 L40,48 L60,45 L80,38 L100,32 L120,25 L140,18 L160,12 L180,8 L200,5 L200,60 L0,60 Z" />
+
+                                    <!-- Line -->
+                                    <path class="sparkline-path"
+                                        d="M0,55 L20,52 L40,48 L60,45 L80,38 L100,32 L120,25 L140,18 L160,12 L180,8 L200,5" />
+
+                                    <!-- End Dot -->
+                                    <circle class="sparkline-dot" cx="200" cy="5" r="4" />
+                                </svg>
+                            </div>
+
+                            <!-- Timeline -->
+                            <div class="flex justify-between text-[10px] mono-font text-neutral-500 mb-8">
+                                <span>2024</span>
+                                <span>2025</span>
+                                <span>2026</span>
+                                <span>2027</span>
+                                <span>2028</span>
+                            </div>
+
+                            <!-- Footer Info -->
+                            <div class="pt-6 border-t border-white/5">
+                                <p class="text-[10px] text-neutral-500 leading-relaxed">
+                                    Based on integration with <span class="text-white">20 Tier-1 metros</span> and
+                                    <span class="text-white">100+ Smart Corridors</span> by 2028.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Additional Mini Cards -->
+                        <div class="grid grid-cols-2 gap-4 mt-4">
+                            <div class="dashboard-card p-5">
+                                <span
+                                    class="text-[9px] text-neutral-500 uppercase tracking-wider block mb-2">Cities</span>
+                                <span class="text-2xl font-bold brand-font text-white">20</span>
+                            </div>
+                            <div class="dashboard-card p-5">
+                                <span
+                                    class="text-[9px] text-neutral-500 uppercase tracking-wider block mb-2">Corridors</span>
+                                <span class="text-2xl font-bold brand-font text-white">100+</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Trust Indicators -->
+            <section class="text-center mb-20">
+                <p class="text-[10px] uppercase tracking-[0.4em] text-neutral-400 mb-10">Aligned With Global Frameworks
+                </p>
+                <div class="flex flex-wrap justify-center items-center gap-12 opacity-50">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-leaf text-2xl"></i>
+                        <span class="font-medium">UN SDG 11</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-globe text-2xl"></i>
+                        <span class="font-medium">Paris Agreement</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-certificate text-2xl"></i>
+                        <span class="font-medium">Verra VCS</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-building text-2xl"></i>
+                        <span class="font-medium">Gold Standard</span>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Terminal Footer -->
+    <footer class="terminal-footer px-6 md:px-12 lg:px-20 py-12">
+        <div class="max-w-7xl mx-auto">
+
+            <div class="grid md:grid-cols-3 gap-8 mb-12 pb-12 border-b border-white/5">
+                <div>
+                    <span class="brand-font font-semibold text-white block mb-4">Green-Pulse Finance</span>
+                    <p class="text-xs text-neutral-500 leading-relaxed">
+                        Carbon FinTech infrastructure for sustainable urban mobility.
+                    </p>
+                </div>
+                <div>
+                    <span class="text-xs text-neutral-500 uppercase tracking-wider block mb-4">Legal</span>
+                    <div class="space-y-2 text-sm text-neutral-400">
+                        <a href="#" class="block hover:text-white transition-colors">Terms of Service</a>
+                        <a href="#" class="block hover:text-white transition-colors">Privacy Policy</a>
+                        <a href="#" class="block hover:text-white transition-colors">Carbon Credit Disclaimer</a>
+                    </div>
+                </div>
+                <div>
+                    <span class="text-xs text-neutral-500 uppercase tracking-wider block mb-4">Contact</span>
+                    <div class="space-y-2 text-sm text-neutral-400">
+                        <a href="mailto:finance@green-pulse.io"
+                            class="block hover:text-white transition-colors">finance@green-pulse.io</a>
+                        <a href="#" class="block hover:text-white transition-colors">Investor Relations</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal Style Output -->
+            <div class="mono-font text-[11px] space-y-3">
+                <div class="terminal-line">
+                    <span class="terminal-prompt">$</span>
+                    <span class="text-neutral-500">system.status</span>
+                    <span class="text-emerald-400 ml-auto">OPERATIONAL</span>
+                </div>
+                <div class="terminal-line">
+                    <span class="terminal-prompt">$</span>
+                    <span class="text-neutral-500">carbon.credits.minted</span>
+                    <span class="text-neutral-300 ml-auto" id="credits-minted">847,293</span>
+                </div>
+                <div class="terminal-line">
+                    <span class="terminal-prompt">$</span>
+                    <span class="text-neutral-500">last.audit</span>
+                    <span class="text-neutral-400 ml-auto">2024-Q4 — Verified</span>
+                </div>
+            </div>
+
+            <div class="mt-12 pt-8 border-t border-white/5 flex flex-wrap justify-between items-center gap-4">
+                <p class="text-[10px] text-neutral-600 uppercase tracking-[0.3em]">
+                    © 2024 Green-Pulse Technologies. All Rights Reserved.
+                </p>
+                <p class="text-[10px] text-neutral-600 uppercase tracking-[0.3em]">
+                    Made for a Sustainable Urban Future | Team: <span class="text-neutral-400">Underdogs</span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Custom Cursor Logic
+        const dot = document.getElementById("cursor-dot");
+        const outline = document.getElementById("cursor-outline");
+
+        document.addEventListener("mousemove", (e) => {
+            const { clientX: x, clientY: y } = e;
+            dot.style.left = x + "px";
+            dot.style.top = y + "px";
+            outline.animate({ left: x + "px", top: y + "px" }, { duration: 400, fill: "forwards" });
+        });
+
+        // Hover Effect on Interactive Elements
+        const interactiveElements = document.querySelectorAll('a, button, .glass-card, .dashboard-card, .metric-row');
+
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                dot.classList.add('hovering');
+                outline.classList.add('hovering');
+            });
+            el.addEventListener('mouseleave', () => {
+                dot.classList.remove('hovering');
+                outline.classList.remove('hovering');
+            });
+        });
+
+        // Animate Credits Counter
+        let credits = 847293;
+        setInterval(() => {
+            credits += Math.floor(Math.random() * 5) + 1;
+            document.getElementById('credits-minted').textContent = credits.toLocaleString();
+        }, 2000);
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+        // 3D Card Tilt & Mouse Tracking
+        document.querySelectorAll('.glass-card, .glass-panel, .border-l-2').forEach(card => {
+            card.style.transformStyle = 'preserve-3d';
+            card.style.perspective = '1000px';
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((centerY - y) / centerY) * 10;
+                const rotateY = ((x - centerX) / centerX) * 10;
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+
+                const percentX = (x / rect.width) * 100;
+                const percentY = (y / rect.height) * 100;
+                card.style.setProperty('--mouse-x', percentX + '%');
+                card.style.setProperty('--mouse-y', percentY + '%');
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            });
+
+            // Add depth to inner elements
+            const innerElements = card.querySelectorAll('i, h2, h3, h4, .text-3xl, .stat-value');
+            innerElements.forEach(el => {
+                el.style.transform = 'translateZ(30px)';
+                el.style.transition = 'transform 0.3s ease-out';
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green-Pulse | Strategic Roadmap 2025-2070</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --blue-primary: #3b82f6;
+            --blue-light: #60a5fa;
+            --blue-dark: #1d4ed8;
+            --cyan-accent: #22d3ee;
+            --purple-accent: #a855f7;
+            --bg-primary: #030712;
+            --bg-secondary: #0a1120;
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --border-subtle: rgba(59, 130, 246, 0.15);
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--blue-primary) transparent;
+        }
+
+        *::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: var(--blue-primary);
+            border-radius: 3px;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        .brand-font {
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        .mono-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 30px;
+            transition: opacity 0.6s, visibility 0.6s;
+        }
+
+        #preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-timeline {
+            width: 120px;
+            height: 4px;
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loader-timeline::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 40%;
+            background: linear-gradient(90deg, var(--blue-primary), var(--cyan-accent));
+            border-radius: 2px;
+            animation: load-progress 1.5s ease-in-out infinite;
+        }
+
+        @keyframes load-progress {
+            0% {
+                left: -40%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        .loader-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--blue-light);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Background Effects */
+        .grid-background {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+            background-size: 80px 80px;
+            mask-image: radial-gradient(ellipse 60% 50% at 50% 30%, black 20%, transparent 100%);
+            z-index: -1;
+        }
+
+        .glow-orbs {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float-orb 20s infinite ease-in-out;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent 70%);
+            top: 10%;
+            left: 10%;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.2), transparent 70%);
+            top: 60%;
+            right: 10%;
+            animation-delay: -10s;
+        }
+
+        .orb-3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.15), transparent 70%);
+            bottom: 20%;
+            left: 30%;
+            animation-delay: -5s;
+        }
+
+        @keyframes float-orb {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            25% {
+                transform: translate(30px, -30px) scale(1.05);
+            }
+
+            50% {
+                transform: translate(-20px, 20px) scale(0.95);
+            }
+
+            75% {
+                transform: translate(20px, 10px) scale(1.02);
+            }
+        }
+
+        /* Custom Cursor */
+        #cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--blue-primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 20px var(--blue-primary);
+            transition: transform 0.15s ease, background 0.3s ease;
+        }
+
+        #cursor-dot.hovering {
+            transform: translate(-50%, -50%) scale(1.5);
+            background: var(--cyan-accent);
+        }
+
+        #cursor-outline {
+            position: fixed;
+            width: 44px;
+            height: 44px;
+            border: 1.5px solid rgba(59, 130, 246, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        #cursor-outline.hovering {
+            width: 64px;
+            height: 64px;
+            border-color: var(--cyan-accent);
+            background: rgba(34, 211, 238, 0.1);
+        }
+
+        /* Timeline */
+        .timeline-container {
+            position: relative;
+            padding: 0 20px;
+        }
+
+        .timeline-track {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            transform: translateX(-50%);
+            background: linear-gradient(to bottom,
+                    transparent 0%,
+                    rgba(59, 130, 246, 0.1) 5%,
+                    rgba(59, 130, 246, 0.3) 20%,
+                    var(--blue-primary) 50%,
+                    rgba(59, 130, 246, 0.3) 80%,
+                    rgba(59, 130, 246, 0.1) 95%,
+                    transparent 100%);
+            border-radius: 2px;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 4px;
+            height: 0;
+            transform: translateX(-50%);
+            background: linear-gradient(to bottom, var(--cyan-accent), var(--blue-primary));
+            border-radius: 2px;
+            transition: height 0.5s ease-out;
+            box-shadow: 0 0 20px var(--cyan-accent);
+        }
+
+        .timeline-node {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: var(--bg-primary);
+            border: 3px solid var(--blue-primary);
+            border-radius: 50%;
+            z-index: 10;
+            transition: all 0.4s ease;
+        }
+
+        .timeline-node.active {
+            background: var(--blue-primary);
+            box-shadow: 0 0 30px var(--blue-primary);
+            transform: translateX(-50%) scale(1.2);
+        }
+
+        .timeline-node.completed {
+            background: var(--cyan-accent);
+            border-color: var(--cyan-accent);
+        }
+
+        .timeline-node::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .timeline-node:hover::before {
+            opacity: 1;
+        }
+
+        /* Phase Cards */
+        .phase-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(59, 130, 246, 0.02) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .phase-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .phase-card:hover::before {
+            opacity: 1;
+        }
+
+        .phase-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(59, 130, 246, 0.1), transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .phase-card:hover::after {
+            opacity: 1;
+        }
+
+        .phase-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--blue-primary);
+            box-shadow:
+                0 20px 60px rgba(59, 130, 246, 0.15),
+                0 0 0 1px rgba(59, 130, 246, 0.2);
+        }
+
+        .phase-card.left {
+            margin-right: calc(50% + 40px);
+        }
+
+        .phase-card.right {
+            margin-left: calc(50% + 40px);
+        }
+
+        .phase-number {
+            position: absolute;
+            top: -30px;
+            font-size: 120px;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            opacity: 0.03;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        .phase-card.left .phase-number {
+            right: 20px;
+        }
+
+        .phase-card.right .phase-number {
+            left: 20px;
+        }
+
+        /* Blue Gradient Text */
+        .blue-gradient {
+            background: linear-gradient(135deg, var(--blue-light) 0%, var(--cyan-accent) 50%, var(--blue-light) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 4s linear infinite;
+        }
+
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        /* Milestone Tags */
+        .milestone-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 100px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+        }
+
+        .milestone-tag:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Progress Indicators */
+        .progress-ring {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring .bg {
+            fill: none;
+            stroke: rgba(59, 130, 246, 0.1);
+            stroke-width: 4;
+        }
+
+        .progress-ring .progress {
+            fill: none;
+            stroke: url(#blueGradient);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 226;
+            stroke-dashoffset: 226;
+            transition: stroke-dashoffset 1.5s ease;
+        }
+
+        .progress-ring .value {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* KPI Cards */
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            background: rgba(59, 130, 246, 0.05);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        /* Vision Section */
+        .vision-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(34, 211, 238, 0.05) 50%, rgba(168, 85, 247, 0.05) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vision-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(34, 211, 238, 0.1) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .reveal-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .reveal-right.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Connection Lines */
+        .connector {
+            position: absolute;
+            top: 50%;
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--blue-primary), transparent);
+        }
+
+        .phase-card.left .connector {
+            right: -40px;
+            background: linear-gradient(90deg, transparent, var(--blue-primary));
+        }
+
+        .phase-card.right .connector {
+            left: -40px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+
+            .phase-card.left,
+            .phase-card.right {
+                margin-left: 60px;
+                margin-right: 0;
+            }
+
+            .timeline-track,
+            .timeline-progress {
+                left: 30px;
+            }
+
+            .timeline-node {
+                left: 30px;
+            }
+
+            .connector {
+                left: -30px !important;
+                right: auto !important;
+                background: linear-gradient(90deg, transparent, var(--blue-primary)) !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            #cursor-dot,
+            #cursor-outline {
+                display: none;
+            }
+
+            body {
+                cursor: auto;
+            }
+
+            .phase-card.left,
+            .phase-card.right {
+                margin-left: 40px;
+            }
+
+            .timeline-track,
+            .timeline-progress,
+            .timeline-node {
+                left: 15px;
+            }
+
+            .connector {
+                left: -20px !important;
+                width: 20px;
+            }
+        }
+
+        /* Animated Background Lines */
+        .flow-lines {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+            opacity: 0.3;
+        }
+
+        .flow-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--blue-primary), transparent);
+            animation: flow-across 8s linear infinite;
+        }
+
+        @keyframes flow-across {
+            0% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateX(100vw);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader-timeline"></div>
+        <div class="loader-text">Mapping Future</div>
+    </div>
+
+    <!-- Cursors -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+
+    <!-- Background Effects -->
+    <div class="grid-background"></div>
+    <div class="glow-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    <div class="flow-lines" id="flow-lines"></div>
+
+    <!-- SVG Definitions -->
+    <svg width="0" height="0">
+        <defs>
+            <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#3b82f6" />
+                <stop offset="50%" style="stop-color:#22d3ee" />
+                <stop offset="100%" style="stop-color:#3b82f6" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 px-6 lg:px-12 py-5 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-4 group">
+                <div
+                    class="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/20 transition">
+                    <i class="fas fa-arrow-left text-blue-400"></i>
+                </div>
+                <div>
+                    <span class="brand-font font-semibold text-base block">ROADMAP</span>
+                    <span class="mono-font text-[9px] text-gray-500 tracking-wider">STRATEGIC VISION 2025-2070</span>
+                </div>
+            </a>
+
+            <div class="hidden lg:flex items-center gap-6">
+                <a href="index.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Home</a>
+                <a href="crisis.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Crisis</a>
+                <a href="simulation.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Sandbox</a>
+                <a href="tech.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Tech</a>
+                <a href="business.html"
+                    class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Business</a>
+                <a href="roadmap.html"
+                    class="text-xs uppercase tracking-wider text-blue-400 font-bold transition">Roadmap</a>
+            </div>
+
+            <a href="simulation.html"
+                class="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-full hover:bg-blue-500 hover:text-white transition-all text-xs font-semibold uppercase tracking-wider">
+                <i class="fas fa-network-wired"></i>
+                Launch DQN Simulation
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-32 pb-32">
+
+        <!-- Hero Section -->
+        <section class="px-6 lg:px-12 max-w-6xl mx-auto text-center mb-32">
+            <div class="reveal">
+                <div
+                    class="inline-flex items-center gap-3 px-5 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full mb-8">
+                    <i class="fas fa-route text-blue-400 text-sm"></i>
+                    <span class="text-blue-400 text-[11px] font-semibold tracking-[0.3em] uppercase mono-font">Strategic
+                        Expansion Plan</span>
+                </div>
+
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold brand-font leading-[0.95] mb-8">
+                    TOWARDS A<br>
+                    <span class="blue-gradient">COGNIZANT GRID</span>
+                </h1>
+
+                <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed mb-12">
+                    A phased evolution from isolated smart corridors to a fully autonomous,
+                    <span class="text-white font-medium">incentive-aligned national infrastructure</span> —
+                    achieving India's net-zero transport goals.
+                </p>
+
+                <!-- Progress Overview -->
+                <div class="flex flex-wrap justify-center gap-8 md:gap-16">
+                    <div class="text-center">
+                        <div class="text-3xl md:text-4xl font-bold brand-font text-white mb-2">2025</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wider">Current Year</div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-32 md:w-48 h-2 bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full w-1/4 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"
+                                id="progress-bar"></div>
+                        </div>
+                        <span class="text-sm mono-font text-blue-400">25%</span>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl md:text-4xl font-bold brand-font blue-gradient mb-2">2070</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wider">Vision Target</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline Section -->
+        <section class="px-6 lg:px-12 max-w-6xl mx-auto mb-32">
+            <div class="timeline-container">
+                <div class="timeline-track"></div>
+                <div class="timeline-progress" id="timeline-progress"></div>
+
+                <!-- Phase 1 -->
+                <div class="relative mb-32">
+                    <div class="timeline-node completed" style="top: 50px;"></div>
+
+                    <div class="phase-card left p-8 md:p-10 reveal-left">
+                        <div class="connector"></div>
+                        <span class="phase-number">01</span>
+
+                        <div class="flex items-start justify-between mb-6">
+                            <div>
+                                <span class="mono-font text-[10px] text-cyan-400 uppercase tracking-widest">Phase 1 —
+                                    Foundation</span>
+                                <h3 class="text-2xl md:text-3xl font-bold brand-font mt-2">Pilot Launch & Validation
+                                </h3>
+                            </div>
+                            <div class="hidden md:block">
+                                <div class="progress-ring">
+                                    <svg width="80" height="80">
+                                        <circle class="bg" cx="40" cy="40" r="36"></circle>
+                                        <circle class="progress" cx="40" cy="40" r="36" style="stroke-dashoffset: 0;">
+                                        </circle>
+                                    </svg>
+                                    <div class="value text-cyan-400">100%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+                                <span class="text-2xl font-bold brand-font text-cyan-400">2025</span>
+                            </div>
+                            <div class="h-8 w-px bg-white/10"></div>
+                            <div class="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                                <span class="text-2xl font-bold brand-font text-blue-400">2026</span>
+                            </div>
+                        </div>
+
+                        <p class="text-gray-400 leading-relaxed mb-8">
+                            Targeted deployment across high-congestion arterial roads in <span
+                                class="text-white font-medium">Delhi-NCR</span>.
+                            Fine-tuning RL agents using high-fidelity ground-truth data from ITMS infrastructure.
+                        </p>
+
+                        <!-- Milestones -->
+                        <div class="flex flex-wrap gap-2 mb-8">
+                            <span class="milestone-tag text-cyan-400">
+                                <i class="fas fa-check-circle"></i>
+                                Delhi-NCR Pilot
+                            </span>
+                            <span class="milestone-tag text-cyan-400">
+                                <i class="fas fa-check-circle"></i>
+                                Citizen App MVP
+                            </span>
+                            <span class="milestone-tag text-blue-400">
+                                <i class="fas fa-circle"></i>
+                                ITMS Integration
+                            </span>
+                        </div>
+
+                        <!-- KPIs -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="kpi-card text-center">
+                                <div class="text-xl font-bold brand-font text-white">5</div>
+                                <div class="text-[9px] text-gray-500 uppercase tracking-wider mt-1">Corridors</div>
+                            </div>
+                            <div class="kpi-card text-center">
+                                <div class="text-xl font-bold brand-font text-white">50K</div>
+                                <div class="text-[9px] text-gray-500 uppercase tracking-wider mt-1">Users</div>
+                            </div>
+                            <div class="kpi-card text-center">
+                                <div class="text-xl font-bold brand-font text-cyan-400">-15%</div>
+                                <div class="text-[9px] text-gray-500 uppercase tracking-wider mt-1">Emissions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="relative mb-32">
+                    <div class="timeline-node active" style="top: 50px;"></div>
+
+                    <div class="phase-card right p-8 md:p-10 reveal-right">
+                        <div class="connector"></div>
+                        <span class="phase-number">02</span>
+
+                        <div class="flex items-start justify-between mb-6">
+                            <div>
+                                <span class="mono-font text-[10px] text-blue-400 uppercase tracking-widest">Phase 2 —
+                                    Expansion</span>
+                                <h3 class="text-2xl md:text-3xl font-bold brand-font mt-2">Multi-City Synchronization
+                                </h3>
+                            </div>
+                            <div class="hidden md:block">
+                                <div class="progress-ring">
+                                    <svg width="80" height="80">
+                                        <circle class="bg" cx="40" cy="40" r="36"></circle>
+                                        <circle class="progress" cx="40" cy="40" r="36" style="stroke-dashoffset: 170;">
+                                        </circle>
+                                    </svg>
+                                    <div class="value text-blue-400">25%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                                <span class="text-2xl font-bold brand-font text-blue-400">2027</span>
+                            </div>
+                            <div class="h-8 w-px bg-white/10"></div>
+                            <div class="px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                                <span class="text-2xl font-bold brand-font text-purple-400">2030</span>
+                            </div>
+                        </div>
+
+                        <p class="text-gray-400 leading-relaxed mb-8">
+                            Deployment of <span class="text-white font-medium">Multi-Agent Reinforcement Learning
+                                (MARL)</span> for
+                            city-wide flow optimization. Utilizing cross-city transfer learning for rapid rollout across
+                            10+ metros.
+                        </p>
+
+                        <!-- Milestones -->
+                        <div class="flex flex-wrap gap-2 mb-8">
+                            <span class="milestone-tag text-blue-400">
+                                <i class="fas fa-circle"></i>
+                                MARL Network
+                            </span>
+                            <span class="milestone-tag text-blue-400">
+                                <i class="fas fa-circle"></i>
+                                Policy Transfer
+                            </span>
+                            <span class="milestone-tag text-purple-400">
+                                <i class="fas fa-circle"></i>
+                                Carbon Credits
+                            </span>
+                        </div>
+
+                        <!-- KPIs -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="kpi-card text-center">
+                                <div class="text-xl font-bold brand-font text-white">10+</div>
+                                <div class="text-[9px] text-gray-500 uppercase tracking-wider mt-1">Cities</div>
+                            </div>
+                            <div class="kpi-card text-center">
+                                <div class="text-xl font-bold brand-font text-white">5M</div>
+                                <div class="text-[9px] text-gray-500 uppercase tracking-wider mt-1">Users</div>
+                            </div>
+                            <div class="kpi-card text-center">
+                                <div class="text-xl font-bold brand-font text-blue-400">-22%</div>
+                                <div class="text-[9px] text-gray-500 uppercase tracking-wider mt-1">Emissions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="relative mb-32">
+                    <div class="timeline-node" style="top: 50px;"></div>
+
+                    <div class="phase-card left p-8 md:p-10 reveal-left">
+                        <div class="connector"></div>
+                        <span class="phase-number">03</span>
+
+                        <div class="flex items-start justify-between mb-6">
+                            <div>
+                                <span class="mono-font text-[10px] text-purple-400 uppercase tracking-widest">Phase 3 —
+                                    Integration</span>
+                                <h3 class="text-2xl md:text-3xl font-bold brand-font mt-2">National Grid & V2X</h3>
+                            </div>
+                            <div class="hidden md:block">
+                                <div class="progress-ring">
+                                    <svg width="80" height="80">
+                                        <circle class="bg" cx="40" cy="40" r="36"></circle>
+                                        <circle class="progress" cx="40" cy="40" r="36" style="stroke-dashoffset: 226;">
+                                        </circle>
+                                    </svg>
+                                    <div class="value text-gray-500">0%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                                <span class="text-2xl font-bold brand-font text-purple-400">2031</span>
+                            </div>
+                            <div class="h-8 w-px bg-white/10"></div>
+                            <div class="px-4 py-2 bg-pink-500/10 border border-pink-500/20 rounded-lg">
+                                <span class="text-2xl font-bold brand-font text-pink-400">2045</span>
+                            </div>
+                        </div>
+
+                        <p class="text-gray-400 leading-relaxed mb-8">
+                            Full <span class="text-white font-medium">Vehicle-to-Everything (V2X)</span> integration and
+                            smart grid synergy.
+                            Autonomous coordination with EVs, emergency services, and public transit systems.
+                        </p>
+
+                        <!-- Milestones -->
+                        <div class="flex flex-wrap gap-2 mb-8">
+                            <span class="milestone-tag text-purple-400">
+                                <i class="fas fa-circle"></i>
+                                V2X Protocol
+                            </span>
+                            <span class="milestone-tag text-purple-400">
+                                <i class="fas fa-circle"></i>
+                                EV Grid Sync
+                            </span>
+                            <span class="milestone-tag text-pink-400">
+                                <i class="fas fa-circle"></i>
+                                Autonomous Lanes
+                            </span>
+                        </div>
+
+                        <!-- KPIs -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="kpi-card text-center">
+                                <div class="text-xl font-bold brand-font text-white">50+</div>
+                                <div class="text-[9px] text-gray-500 uppercase tracking-wider mt-1">Cities</div>
+                            </div>
+                            <div class="kpi-card text-center">
+                                <div class="text-xl font-bold brand-font text-white">50M</div>
+                                <div class="text-[9px] text-gray-500 uppercase tracking-wider mt-1">Users</div>
+                            </div>
+                            <div class="kpi-card text-center">
+                                <div class="text-xl font-bold brand-font text-purple-400">-28%</div>
+                                <div class="text-[9px] text-gray-500 uppercase tracking-wider mt-1">Emissions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 4 - Vision -->
+                <div class="relative">
+                    <div class="timeline-node" style="top: 50px;"></div>
+
+                    <div class="phase-card right p-8 md:p-10 reveal-right">
+                        <div class="connector"></div>
+                        <span class="phase-number">04</span>
+
+                        <div class="flex items-start justify-between mb-6">
+                            <div>
+                                <span class="mono-font text-[10px] text-emerald-400 uppercase tracking-widest">Phase 4 —
+                                    Vision</span>
+                                <h3 class="text-2xl md:text-3xl font-bold brand-font mt-2">COP 2070 North Star</h3>
+                            </div>
+                            <div class="hidden md:block">
+                                <div class="progress-ring">
+                                    <svg width="80" height="80">
+                                        <circle class="bg" cx="40" cy="40" r="36"></circle>
+                                        <circle class="progress" cx="40" cy="40" r="36" style="stroke-dashoffset: 226;">
+                                        </circle>
+                                    </svg>
+                                    <div class="value text-gray-500">—</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                                <span class="text-2xl font-bold brand-font text-emerald-400">2046</span>
+                            </div>
+                            <div class="h-8 w-px bg-white/10"></div>
+                            <div class="px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-lg">
+                                <span class="text-2xl font-bold brand-font text-emerald-300">2070</span>
+                            </div>
+                        </div>
+
+                        <p class="text-gray-400 leading-relaxed mb-8">
+                            Transition from responsive systems to <span class="text-white font-medium">predictive
+                                governance</span>.
+                            Full national integration achieving India's commitment to <span
+                                class="text-emerald-400 font-medium">net-zero transport emissions</span>.
+                        </p>
+
+                        <!-- Milestones -->
+                        <div class="flex flex-wrap gap-2 mb-8">
+                            <span class="milestone-tag text-emerald-400">
+                                <i class="fas fa-circle"></i>
+                                Predictive Gov
+                            </span>
+                            <span class="milestone-tag text-emerald-400">
+                                <i class="fas fa-circle"></i>
+                                Net-Zero Transport
+                            </span>
+                            <span class="milestone-tag text-emerald-400">
+                                <i class="fas fa-circle"></i>
+                                Pan-India Grid
+                            </span>
+                        </div>
+
+                        <!-- KPIs -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="kpi-card text-center">
+                                <div class="text-xl font-bold brand-font text-white">100+</div>
+                                <div class="text-[9px] text-gray-500 uppercase tracking-wider mt-1">Cities</div>
+                            </div>
+                            <div class="kpi-card text-center">
+                                <div class="text-xl font-bold brand-font text-white">500M</div>
+                                <div class="text-[9px] text-gray-500 uppercase tracking-wider mt-1">Users</div>
+                            </div>
+                            <div class="kpi-card text-center">
+                                <div class="text-xl font-bold brand-font text-emerald-400">-30%</div>
+                                <div class="text-[9px] text-gray-500 uppercase tracking-wider mt-1">Emissions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Vision Realization -->
+        <section class="px-6 lg:px-12 max-w-5xl mx-auto mb-32">
+            <div class="vision-card p-10 md:p-16 text-center reveal">
+                <div class="relative z-10">
+                    <div
+                        class="w-24 h-24 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-3xl flex items-center justify-center mx-auto mb-8 relative">
+                        <i class="fas fa-trophy text-4xl blue-gradient"></i>
+                        <div class="absolute inset-0 rounded-3xl border border-blue-500/20 animate-ping"></div>
+                    </div>
+
+                    <span class="mono-font text-[10px] text-blue-400 uppercase tracking-[0.4em] block mb-4">Mission
+                        Accomplished</span>
+
+                    <h2 class="text-4xl md:text-5xl font-bold brand-font mb-6">
+                        VISION <span class="blue-gradient">REALIZATION</span>
+                    </h2>
+
+                    <div class="text-6xl md:text-8xl font-bold brand-font blue-gradient mb-4">
+                        30%
+                    </div>
+                    <p class="text-xl text-gray-400 mb-8">Transport Emissions Reduction</p>
+
+                    <p class="text-gray-500 max-w-lg mx-auto leading-relaxed mb-12">
+                        Achieving a scalable pathway to measurable net-zero outcomes and long-term climate resilience
+                        through intelligent, autonomous urban mobility infrastructure.
+                    </p>
+
+                    <!-- Impact Stats -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold brand-font text-white mb-1">1.6M</div>
+                            <div class="text-xs text-gray-500 uppercase tracking-wider">Lives Saved</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold brand-font text-white mb-1">$22B</div>
+                            <div class="text-xs text-gray-500 uppercase tracking-wider">Economic Value</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold brand-font text-white mb-1">100+</div>
+                            <div class="text-xs text-gray-500 uppercase tracking-wider">Smart Cities</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold brand-font text-white mb-1">500M</div>
+                            <div class="text-xs text-gray-500 uppercase tracking-wider">Citizens Served</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="px-6 lg:px-12 max-w-4xl mx-auto text-center reveal">
+            <h3 class="text-2xl md:text-3xl font-bold brand-font mb-6">Ready to See the Future?</h3>
+            <p class="text-gray-400 mb-10 max-w-xl mx-auto">
+                Explore our interactive simulation to experience how Green-Pulse transforms urban mobility in real-time.
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="simulation.html"
+                    class="px-10 py-4 bg-blue-500 text-white rounded-full font-semibold text-sm uppercase tracking-wider hover:bg-blue-400 transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2">
+                    <i class="fas fa-play"></i>
+                    Launch Digital Twin
+                </a>
+                <a href="tech.html"
+                    class="px-10 py-4 border border-blue-500/30 text-blue-400 rounded-full font-semibold text-sm uppercase tracking-wider hover:bg-blue-500/10 transition-all flex items-center gap-2">
+                    <i class="fas fa-brain"></i>
+                    Explore Technology
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 px-6 lg:px-12 py-12">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-wrap justify-between items-center gap-6 mb-8">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                        <i class="fas fa-route text-blue-400"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold brand-font block">GREEN-PULSE ROADMAP</span>
+                        <span class="text-[9px] mono-font text-gray-500">Strategic Vision Document v2.0</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-8 text-[10px] mono-font text-gray-500 uppercase tracking-wider">
+                    <span>Aligned with: <span class="text-white">UN SDG 11, 13</span></span>
+                    <span class="text-white/20">|</span>
+                    <span>Framework: <span class="text-white">India NDC 2070</span></span>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-white/5 flex flex-wrap justify-between items-center gap-4">
+                <p class="text-[10px] text-gray-600 uppercase tracking-[0.2em]">
+                    © 2025 Green-Pulse Technologies. All Rights Reserved.
+                </p>
+                <p class="text-[10px] text-gray-600 uppercase tracking-[0.2em]">
+                    Team: <span class="text-gray-400">Underdogs</span> | Last Updated: <span id="update-date"></span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Preloader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('preloader').classList.add('hidden');
+            }, 1500);
+        });
+
+        // Custom Cursor
+        const dot = document.getElementById("cursor-dot");
+        const outline = document.getElementById("cursor-outline");
+
+        document.addEventListener("mousemove", (e) => {
+            const { clientX: x, clientY: y } = e;
+            dot.style.left = x + "px";
+            dot.style.top = y + "px";
+            outline.animate({ left: x + "px", top: y + "px" }, { duration: 400, fill: "forwards" });
+        });
+
+        // Hover Effects
+        const interactiveElements = document.querySelectorAll('a, button, .phase-card, .kpi-card, .milestone-tag');
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                dot.classList.add('hovering');
+                outline.classList.add('hovering');
+            });
+            el.addEventListener('mouseleave', () => {
+                dot.classList.remove('hovering');
+                outline.classList.remove('hovering');
+            });
+        });
+
+        // Card Mouse Tracking
+        document.querySelectorAll('.phase-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                card.style.setProperty('--mouse-x', x + '%');
+                card.style.setProperty('--mouse-y', y + '%');
+            });
+        });
+
+        // Generate Flow Lines
+        const flowLines = document.getElementById('flow-lines');
+        for (let i = 0; i < 5; i++) {
+            const line = document.createElement('div');
+            line.className = 'flow-line';
+            line.style.width = (100 + Math.random() * 200) + 'px';
+            line.style.top = (10 + Math.random() * 80) + '%';
+            line.style.animationDelay = Math.random() * 8 + 's';
+            line.style.animationDuration = (6 + Math.random() * 4) + 's';
+            flowLines.appendChild(line);
+        }
+
+        // Scroll Reveal
+        const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        reveals.forEach(reveal => revealObserver.observe(reveal));
+
+        // Timeline Progress Animation
+        const timelineProgress = document.getElementById('timeline-progress');
+        const progressObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    timelineProgress.style.height = '100%';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        progressObserver.observe(document.querySelector('.timeline-container'));
+
+        // Update Date
+        const now = new Date();
+        document.getElementById('update-date').textContent = now.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Animate Progress Bar on Scroll
+        const progressBar = document.getElementById('progress-bar');
+        window.addEventListener('scroll', () => {
+            const scrollPercent = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+            const cappedPercent = Math.min(25 + (scrollPercent * 0.75), 100);
+            progressBar.style.width = cappedPercent + '%';
+        });
+
+        // 3D Card Tilt & Mouse Tracking
+        document.querySelectorAll('.phase-card, .glass-panel, .timeline-node').forEach(card => {
+            card.style.transformStyle = 'preserve-3d';
+            card.style.perspective = '1000px';
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((centerY - y) / centerY) * 10;
+                const rotateY = ((x - centerX) / centerX) * 10;
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+
+                const percentX = (x / rect.width) * 100;
+                const percentY = (y / rect.height) * 100;
+                card.style.setProperty('--mouse-x', percentX + '%');
+                card.style.setProperty('--mouse-y', percentY + '%');
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            });
+
+            // Add depth to inner elements
+            const innerElements = card.querySelectorAll('i, h3, h4, p, .milestone-tag');
+            innerElements.forEach(el => {
+                el.style.transform = 'translateZ(30px)';
+                el.style.transition = 'transform 0.3s ease-out';
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green-Pulse | Autonomous Urban Traffic Command Center</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --neon-green: #00ff9d;
+            --neon-blue: #00d4ff;
+            --neon-purple: #a855f7;
+            --neon-red: #ff4757;
+            --neon-yellow: #ffd93d;
+            --deep-bg: #030807;
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --border-glow: rgba(0, 255, 157, 0.15);
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--neon-green) transparent;
+        }
+
+        *::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: var(--neon-green);
+            border-radius: 3px;
+        }
+
+        body {
+            background-color: var(--deep-bg);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        .brand-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .mono-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--deep-bg);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 30px;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        #preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-ring {
+            width: 80px;
+            height: 80px;
+            border: 3px solid transparent;
+            border-top-color: var(--neon-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: relative;
+        }
+
+        .loader-ring::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border: 3px solid transparent;
+            border-top-color: var(--neon-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite reverse;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loader-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--neon-green);
+            letter-spacing: 3px;
+        }
+
+        /* Grid Background */
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(to right, rgba(0, 255, 157, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 255, 157, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 100%);
+            z-index: -1;
+        }
+
+        /* Floating Particles */
+        .particles-container {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float-particle 20s infinite linear;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.5;
+            }
+
+            90% {
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Traffic Flow Animation */
+        .traffic-flow {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            z-index: -1;
+            opacity: 0.15;
+            overflow: hidden;
+        }
+
+        .flow-line {
+            position: absolute;
+            bottom: 50px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            animation: flow 3s infinite linear;
+        }
+
+        @keyframes flow {
+            0% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateX(100vw);
+                opacity: 0;
+            }
+        }
+
+        /* Cursor */
+        #cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+
+        #cursor-outline {
+            position: fixed;
+            width: 45px;
+            height: 45px;
+            border: 1px solid rgba(0, 255, 157, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #cursor-outline.hovering {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 255, 157, 0.1);
+            border-color: var(--neon-green);
+        }
+
+        /* Portal Cards */
+        .portal-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(0, 255, 157, 0.02) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: block;
+            text-decoration: none;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portal-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 255, 157, 0.1), transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .portal-card:hover::before {
+            opacity: 1;
+        }
+
+        .portal-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.5s;
+        }
+
+        .portal-card:hover::after {
+            left: 100%;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            border-color: var(--neon-green);
+            box-shadow:
+                0 0 50px rgba(0, 255, 157, 0.1),
+                0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-icon-wrapper {
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .card-icon-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            padding: 1px;
+            background: linear-gradient(135deg, currentColor 0%, transparent 60%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+
+        /* Neon Effects */
+        .neon-text {
+            color: var(--neon-green);
+            text-shadow:
+                0 0 10px rgba(0, 255, 157, 0.5),
+                0 0 40px rgba(0, 255, 157, 0.3),
+                0 0 80px rgba(0, 255, 157, 0.1);
+        }
+
+        .node-pulse {
+            animation: node-ring 2s infinite;
+        }
+
+        @keyframes node-ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(0, 255, 157, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 157, 0);
+            }
+        }
+
+        /* Live Stats Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 60px;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #fff 0%, var(--neon-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            animation: pulse-bar 2s infinite;
+        }
+
+        @keyframes pulse-bar {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        /* Terminal Style */
+        .terminal-window {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-glow);
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-body {
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .terminal-line {
+            opacity: 0;
+            animation: type-in 0.3s forwards;
+        }
+
+        @keyframes type-in {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .cursor-blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* CTA Button */
+        .cta-button {
+            position: relative;
+            padding: 18px 40px;
+            background: transparent;
+            border: 2px solid var(--neon-green);
+            color: var(--neon-green);
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            overflow: hidden;
+            transition: all 0.4s;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--neon-green);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s;
+            z-index: -1;
+        }
+
+        .cta-button:hover::before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .cta-button:hover {
+            color: var(--deep-bg);
+            box-shadow: 0 0 40px rgba(0, 255, 157, 0.4);
+        }
+
+        /* Marquee */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            background: rgba(0, 255, 157, 0.05);
+            border-top: 1px solid var(--border-glow);
+            border-bottom: 1px solid var(--border-glow);
+            padding: 12px 0;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 30s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #cursor-dot,
+            #cursor-outline {
+                display: none;
+            }
+
+            body {
+                cursor: auto;
+            }
+
+            .hero-title {
+                font-size: 3rem !important;
+            }
+        }
+
+        /* Glowing Border Animation */
+        .glow-border {
+            position: relative;
+        }
+
+        .glow-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-blue), var(--neon-purple), var(--neon-green));
+            background-size: 400% 400%;
+            border-radius: inherit;
+            z-index: -1;
+            animation: gradient-rotate 3s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .glow-border:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes gradient-rotate {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Network Visualization */
+        .network-viz {
+            position: absolute;
+            top: 50%;
+            right: -200px;
+            transform: translateY(-50%);
+            width: 600px;
+            height: 600px;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .network-node {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            animation: node-float 4s infinite ease-in-out;
+        }
+
+        @keyframes node-float {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            25% {
+                transform: translate(10px, -10px);
+            }
+
+            50% {
+                transform: translate(-5px, 5px);
+            }
+
+            75% {
+                transform: translate(5px, 10px);
+            }
+        }
+
+        .network-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, var(--neon-green), transparent);
+            transform-origin: left center;
+        }
+
+        /* Hero Enhancement */
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 20px;
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            border-radius: 50px;
+            background: rgba(0, 255, 157, 0.05);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            animation: live-pulse 2s infinite;
+        }
+
+        @keyframes live-pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7);
+                transform: scale(1);
+            }
+
+            50% {
+                box-shadow: 0 0 0 10px rgba(0, 255, 157, 0);
+                transform: scale(1.1);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 157, 0);
+                transform: scale(1);
+            }
+        }
+
+        .hero-subtitle {
+            background: linear-gradient(135deg, #888 0%, #fff 50%, #888 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader-ring"></div>
+        <div class="loader-text">INITIALIZING COMMAND CENTER</div>
+    </div>
+
+    <!-- Cursors -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+
+    <!-- Background Effects -->
+    <div class="grid-background"></div>
+    <div class="particles-container" id="particles"></div>
+    <div class="traffic-flow" id="traffic-flow"></div>
+
+    <!-- Navigation -->
+    <nav
+        class="fixed top-0 w-full z-50 px-6 lg:px-12 py-4 flex justify-between items-center backdrop-blur-xl border-b border-white/5 bg-black/20">
+        <div class="flex items-center gap-4 group">
+            <div
+                class="w-12 h-12 rounded-xl border border-emerald-500/50 flex items-center justify-center node-pulse bg-gradient-to-br from-emerald-950/50 to-transparent">
+                <i class="fas fa-traffic-light text-[#00ff9d] text-lg"></i>
+            </div>
+            <div>
+                <span class="text-xl font-bold brand-font tracking-tight block">
+                    GREEN<span class="text-[#00ff9d]">-PULSE</span>
+                </span>
+                <span class="text-[9px] mono-font text-gray-500 tracking-wider">TRAFFIC INTELLIGENCE v2.0</span>
+            </div>
+        </div>
+
+        <div class="hidden lg:flex items-center gap-6">
+            <a href="index.html" class="text-xs uppercase tracking-wider text-[#00ff9d] font-bold transition">Home</a>
+            <a href="crisis.html"
+                class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Crisis</a>
+            <a href="simulation.html"
+                class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Sandbox</a>
+            <a href="tech.html"
+                class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Tech</a>
+            <a href="business.html"
+                class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Business</a>
+            <a href="roadmap.html"
+                class="text-xs uppercase tracking-wider text-gray-400 hover:text-white transition">Roadmap</a>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <a href="#dashboard"
+                class="hidden md:flex items-center gap-2 px-5 py-2.5 text-gray-300 hover:text-[#00ff9d] transition-colors text-xs font-medium uppercase tracking-wider">
+                <i class="fas fa-chart-line"></i>
+                Dashboard
+            </a>
+            <a href="simulation.html" class="cta-button text-center">
+                <i class="fas fa-play mr-2"></i>Launch Twin
+            </a>
+        </div>
+    </nav>
+
+    <!-- Marquee Alert -->
+    <div class="marquee-container fixed top-[72px] w-full z-40">
+        <div class="marquee-content">
+            <span class="inline-flex items-center gap-8 text-[11px] mono-font text-gray-400 uppercase tracking-widest">
+                <span class="flex items-center gap-2"><i class="fas fa-bolt text-yellow-400"></i> REAL-TIME OPTIMIZATION
+                    ACTIVE</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2"><i class="fas fa-leaf text-green-400"></i> CO₂ REDUCTION: 34.2%
+                    TODAY</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2"><i class="fas fa-car text-blue-400"></i> VEHICLES MONITORED:
+                    1.2M+</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2"><i class="fas fa-clock text-purple-400"></i> AVG WAIT TIME:
+                    -42%</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2"><i class="fas fa-shield text-emerald-400"></i> ZERO ACCIDENTS
+                    REPORTED</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2"><i class="fas fa-bolt text-yellow-400"></i> REAL-TIME OPTIMIZATION
+                    ACTIVE</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2"><i class="fas fa-leaf text-green-400"></i> CO₂ REDUCTION: 34.2%
+                    TODAY</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2"><i class="fas fa-car text-blue-400"></i> VEHICLES MONITORED:
+                    1.2M+</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2"><i class="fas fa-clock text-purple-400"></i> AVG WAIT TIME:
+                    -42%</span>
+                <span class="text-white/20">●</span>
+                <span class="flex items-center gap-2"><i class="fas fa-shield text-emerald-400"></i> ZERO ACCIDENTS
+                    REPORTED</span>
+                <span class="text-white/20">●</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="relative pt-52 pb-40 px-6 lg:px-12 max-w-7xl mx-auto">
+
+        <!-- Hero Section -->
+        <section class="text-center mb-24 relative">
+            <div class="hero-badge">
+                <div class="live-dot"></div>
+                <span class="text-[#00ff9d] text-[11px] font-semibold tracking-[0.4em] uppercase mono-font">Autonomous
+                    Mobility Protocol</span>
+            </div>
+
+            <h1
+                class="hero-title text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold brand-font leading-[0.95] mb-8">
+                INTELLIGENT<br>
+                <span class="neon-text">TRAFFIC FLOW</span><br>
+                <span class="hero-subtitle">COMMAND CENTER</span>
+            </h1>
+
+            <p class="text-gray-400 text-lg md:text-xl max-w-3xl mx-auto font-light leading-relaxed mb-12">
+                AI-powered traffic management that learns, adapts, and optimizes in real-time.
+                Reducing emissions by <span class="text-[#00ff9d] font-semibold">30%</span>,
+                cutting wait times by <span class="text-[#00ff9d] font-semibold">42%</span>,
+                saving <span class="text-[#00ff9d] font-semibold">1.6M lives</span> annually.
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-4 mb-20">
+                <a href="simulation.html" class="cta-button">
+                    <i class="fas fa-rocket mr-2"></i>Initialize Digital Twin
+                </a>
+                <a href="tech.html"
+                    class="px-8 py-4 border border-white/20 text-white rounded-full hover:border-white/40 transition-all font-medium text-sm uppercase tracking-wider flex items-center gap-2">
+                    <i class="fas fa-code"></i>View Architecture
+                </a>
+            </div>
+
+            <!-- Network Visualization -->
+            <div class="network-viz">
+                <svg width="100%" height="100%" id="network-svg"></svg>
+            </div>
+        </section>
+
+        <!-- Portal Cards -->
+        <section class="mb-24">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold brand-font mb-4">System Modules</h2>
+                <p class="text-gray-500 max-w-xl mx-auto">Explore the core components powering the next generation of
+                    urban mobility intelligence.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <a href="crisis.html" class="portal-card p-10 group glow-border">
+                    <div class="flex justify-between items-start mb-16">
+                        <div class="card-icon-wrapper text-red-500 bg-red-500/10">
+                            <i class="fas fa-triangle-exclamation text-2xl"></i>
+                        </div>
+                        <span
+                            class="text-[9px] mono-font text-gray-600 bg-white/5 px-3 py-1 rounded-full">MODULE_01</span>
+                    </div>
+                    <h3 class="text-xl font-bold brand-font mb-3 group-hover:text-[#00ff9d] transition-colors">The Urban
+                        Crisis</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed mb-8">
+                        1.6M premature deaths linked to air pollution. 30% vehicle idling contributing to rising CO₂
+                        emissions.
+                    </p>
+                    <div class="flex items-center justify-between">
+                        <span
+                            class="text-[10px] font-bold uppercase tracking-widest text-red-400 group-hover:text-white transition">View
+                            Impact Report</span>
+                        <i class="fas fa-arrow-right text-red-400 group-hover:translate-x-2 transition-transform"></i>
+                    </div>
+                </a>
+
+                <a href="simulation.html"
+                    class="portal-card p-10 group border-emerald-500/30 glow-border relative overflow-hidden">
+                    <div
+                        class="absolute top-4 right-4 flex items-center gap-2 text-[9px] mono-font text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">
+                        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                        FEATURED
+                    </div>
+                    <div class="flex justify-between items-start mb-16">
+                        <div class="card-icon-wrapper text-[#00ff9d] bg-emerald-500/10">
+                            <i class="fas fa-cube text-2xl"></i>
+                        </div>
+                        <span class="text-[9px] mono-font text-emerald-500/50 bg-white/5 px-3 py-1 rounded-full">DQN
+                            CORE</span>
+                    </div>
+                    <h3 class="text-xl font-bold brand-font mb-3 group-hover:text-[#00ff9d] transition-colors">Digital
+                        Twin Sandbox</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed mb-8">
+                        Live autonomous agents optimize real-time flow using neural network policy. Test millions of
+                        scenarios before real-world deployment.
+                    </p>
+                    <div class="flex items-center justify-between">
+                        <span
+                            class="text-[10px] font-bold uppercase tracking-widest text-[#00ff9d] group-hover:text-white transition">Launch
+                            Simulation</span>
+                        <i class="fas fa-play text-[#00ff9d] group-hover:translate-x-2 transition-transform"></i>
+                    </div>
+                </a>
+
+                <a href="tech.html" class="portal-card p-10 group glow-border">
+                    <div class="flex justify-between items-start mb-16">
+                        <div class="card-icon-wrapper text-purple-400 bg-purple-500/10">
+                            <i class="fas fa-brain text-2xl"></i>
+                        </div>
+                        <span class="text-[9px] mono-font text-gray-400 bg-white/5 px-3 py-1 rounded-full">RL
+                            CORE</span>
+                    </div>
+                    <h3 class="text-xl font-bold brand-font mb-3 group-hover:text-[#00ff9d] transition-colors">Neural
+                        Architecture</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed mb-8">
+                        Multi-Agent Reinforcement Learning (MARL) optimizing wait times, emissions, and safety metrics.
+                    </p>
+                    <div class="flex items-center justify-between">
+                        <span
+                            class="text-[10px] font-bold uppercase tracking-widest text-purple-400 group-hover:text-white transition">Decode
+                            Logic</span>
+                        <i class="fas fa-code text-purple-400 group-hover:translate-x-2 transition-transform"></i>
+                    </div>
+                </a>
+
+                <a href="business.html" class="portal-card p-10 group glow-border">
+                    <div class="flex justify-between items-start mb-16">
+                        <div class="card-icon-wrapper text-yellow-400 bg-yellow-500/10">
+                            <i class="fas fa-coins text-2xl"></i>
+                        </div>
+                        <span
+                            class="text-[9px] mono-font text-gray-600 bg-white/5 px-3 py-1 rounded-full">FINTECH</span>
+                    </div>
+                    <h3 class="text-xl font-bold brand-font mb-3 group-hover:text-[#00ff9d] transition-colors">Carbon
+                        FinTech</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed mb-8">
+                        Minting tradeable carbon credits from traffic efficiency. Incentivizing sustainable urban
+                        behavior.
+                    </p>
+                    <div class="flex items-center justify-between">
+                        <span
+                            class="text-[10px] font-bold uppercase tracking-widest text-yellow-400 group-hover:text-white transition">Revenue
+                            Model</span>
+                        <i class="fas fa-chart-line text-yellow-400 group-hover:translate-x-2 transition-transform"></i>
+                    </div>
+                </a>
+
+                <a href="roadmap.html" class="portal-card p-10 group md:col-span-2 glow-border">
+                    <div class="flex justify-between items-start mb-12">
+                        <div class="card-icon-wrapper text-blue-400 bg-blue-500/10">
+                            <i class="fas fa-road text-2xl"></i>
+                        </div>
+                        <span class="text-[9px] mono-font text-gray-600 bg-white/5 px-3 py-1 rounded-full">VISION
+                            2070</span>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold brand-font mb-3 group-hover:text-[#00ff9d] transition-colors">
+                                Expansion Roadmap</h3>
+                            <p class="text-gray-500 text-sm leading-relaxed mb-8">
+                                From pilot corridors to a fully cognizant national mobility grid. Achieving 30%
+                                transport emission reduction by 2070.
+                            </p>
+                            <div class="flex items-center gap-4">
+                                <span
+                                    class="text-[10px] font-bold uppercase tracking-widest text-blue-400 group-hover:text-white transition">Explore
+                                    Timeline</span>
+                                <i
+                                    class="fas fa-chevron-right text-blue-400 group-hover:translate-x-2 transition-transform"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center gap-4">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold brand-font text-white">Phase 1</div>
+                                <div class="text-xs text-gray-500 mt-1">2025-2026</div>
+                                <div class="text-[10px] text-blue-400 mt-2">NCR Pilot</div>
+                            </div>
+                            <div class="w-12 h-px bg-gradient-to-r from-blue-400 to-purple-400"></div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold brand-font text-white">Phase 2</div>
+                                <div class="text-xs text-gray-500 mt-1">2027-2035</div>
+                                <div class="text-[10px] text-purple-400 mt-2">10 Metros</div>
+                            </div>
+                            <div class="w-12 h-px bg-gradient-to-r from-purple-400 to-green-400"></div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold brand-font text-[#00ff9d]">Phase 3</div>
+                                <div class="text-xs text-gray-500 mt-1">2036-2070</div>
+                                <div class="text-[10px] text-green-400 mt-2">National Grid</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- Terminal Preview -->
+        <section class="mb-24">
+            <div class="terminal-window max-w-4xl mx-auto">
+                <div class="terminal-header">
+                    <div class="terminal-dot bg-red-500"></div>
+                    <div class="terminal-dot bg-yellow-500"></div>
+                    <div class="terminal-dot bg-green-500"></div>
+                    <span class="ml-4 text-xs mono-font text-gray-400">green-pulse-terminal — traffic-core</span>
+                </div>
+                <div class="terminal-body text-gray-300" id="terminal-content">
+                    <div class="terminal-line" style="animation-delay: 0.1s;">
+                        <span class="text-[#00ff9d]">$</span> <span class="text-gray-400">Initializing Green-Pulse
+                            Traffic Intelligence System...</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 0.5s;">
+                        <span class="text-[#00ff9d]">✓</span> <span class="text-white">Connected to 2,847 intersection
+                            agents</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1s;">
+                        <span class="text-[#00ff9d]">✓</span> <span class="text-white">MARL Neural Network: <span
+                                class="text-[#00ff9d]">ACTIVE</span></span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.5s;">
+                        <span class="text-[#00ff9d]">✓</span> <span class="text-white">DQN Simulation Engine: <span
+                                class="text-blue-400">READY</span></span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 2s;">
+                        <span class="text-[#00ff9d]">✓</span> <span class="text-white">Carbon Credit Minting: <span
+                                class="text-yellow-400">ENABLED</span></span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 2.5s;">
+                        <span class="text-[#00ff9d]">$</span> <span class="text-gray-400">Real-time optimization
+                            running...</span><span class="cursor-blink text-[#00ff9d]">▊</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Stats Dashboard -->
+        <section id="dashboard" class="mb-24">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold brand-font mb-2">Live System Metrics</h2>
+                    <p class="text-gray-500 text-sm mono-font">Real-time performance indicators</p>
+                </div>
+                <div class="flex items-center gap-2 text-[10px] mono-font text-gray-400">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    Last updated: <span id="last-update">Just now</span>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-500 mono-font">Vehicles
+                            Tracked</span>
+                        <i class="fas fa-car text-blue-400"></i>
+                    </div>
+                    <div class="stat-value" id="stat-vehicles">1,247,892</div>
+                    <div class="text-xs text-green-400 mt-2">↑ 12.4% from yesterday</div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill bg-blue-400" style="width: 78%;"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-500 mono-font">CO₂ Saved
+                            Today</span>
+                        <i class="fas fa-leaf text-green-400"></i>
+                    </div>
+                    <div class="stat-value" id="stat-co2">842.7<span class="text-lg">kg</span></div>
+                    <div class="text-xs text-green-400 mt-2">↑ 34.2% efficiency</div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill bg-green-400" style="width: 92%;"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-500 mono-font">Avg Wait Time</span>
+                        <i class="fas fa-clock text-purple-400"></i>
+                    </div>
+                    <div class="stat-value" id="stat-wait">23<span class="text-lg">sec</span></div>
+                    <div class="text-xs text-green-400 mt-2">↓ 42% reduction</div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill bg-purple-400" style="width: 65%;"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-500 mono-font">AI Decisions</span>
+                        <i class="fas fa-brain text-yellow-400"></i>
+                    </div>
+                    <div class="stat-value" id="stat-decisions">4.2<span class="text-lg">M</span></div>
+                    <div class="text-xs text-gray-400 mt-2">Per hour</div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill bg-yellow-400" style="width: 88%;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tech Stack -->
+        <section class="text-center">
+            <p class="text-[10px] uppercase tracking-[0.5em] text-gray-500 mb-8 mono-font">Powered By</p>
+            <div class="flex flex-wrap justify-center items-center gap-12 opacity-40">
+                <div class="flex items-center gap-2">
+                    <i class="fab fa-python text-3xl"></i>
+                    <span class="text-sm font-medium">Python</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-network-wired text-3xl"></i>
+                    <span class="text-sm font-medium">TensorFlow.js</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-fire text-3xl"></i>
+                    <span class="text-sm font-medium">TensorFlow</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fab fa-react text-3xl"></i>
+                    <span class="text-sm font-medium">React</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="fixed bottom-0 w-full backdrop-blur-xl border-t border-white/5 bg-black/30 py-4 px-6 lg:px-12 z-50">
+        <div
+            class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4 text-[10px] uppercase font-semibold tracking-[0.2em] text-gray-500 mono-font">
+            <div class="flex items-center gap-6">
+                <span>Latency: <span class="text-[#00ff9d]" id="latency">12ms</span></span>
+                <span class="hidden sm:inline">|</span>
+                <span class="hidden sm:inline">Uptime: <span class="text-[#00ff9d]">99.97%</span></span>
+            </div>
+            <div class="hidden md:flex items-center gap-2">
+                <span class="text-white/30">Created by</span>
+                <span class="text-white">Team : Underdogs</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <span>CO₂ Saved: <span class="text-[#00ff9d]" id="footer-counter">842.00</span><span
+                        class="text-gray-600">kg</span></span>
+                <span class="hidden sm:inline">|</span>
+                <span class="hidden sm:inline flex items-center gap-2">
+                    <span class="w-2 h-2 bg-[#00ff9d] rounded-full animate-pulse"></span>
+                    LIVE
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Preloader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('preloader').classList.add('hidden');
+            }, 2000);
+        });
+
+        // Custom Cursor
+        const dot = document.getElementById("cursor-dot");
+        const outline = document.getElementById("cursor-outline");
+
+        document.addEventListener("mousemove", (e) => {
+            const { clientX: x, clientY: y } = e;
+            dot.style.left = x + "px";
+            dot.style.top = y + "px";
+            outline.animate({ left: x + "px", top: y + "px" }, { duration: 500, fill: "forwards" });
+        });
+
+        document.querySelectorAll('a, button, .portal-card').forEach(el => {
+            el.addEventListener('mouseenter', () => outline.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => outline.classList.remove('hovering'));
+        });
+
+        // 3D Card Tilt & Mouse Tracking
+        document.querySelectorAll('.portal-card, .cyber-panel, .stat-card, .metric-card').forEach(card => {
+            card.style.transformStyle = 'preserve-3d';
+            card.style.perspective = '1000px';
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((centerY - y) / centerY) * 10;
+                const rotateY = ((x - centerX) / centerX) * 10;
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+
+                const percentX = (x / rect.width) * 100;
+                const percentY = (y / rect.height) * 100;
+                card.style.setProperty('--mouse-x', percentX + '%');
+                card.style.setProperty('--mouse-y', percentY + '%');
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            });
+
+            // Add depth to inner elements
+            const innerElements = card.querySelectorAll('.card-icon-wrapper, h3, .panel-header, .stat-value');
+            innerElements.forEach(el => {
+                el.style.transform = 'translateZ(30px)';
+                el.style.transition = 'transform 0.3s ease-out';
+            });
+        });
+
+        // Generate Particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 15) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        // Generate Traffic Flow Lines
+        const trafficFlow = document.getElementById('traffic-flow');
+        for (let i = 0; i < 8; i++) {
+            const line = document.createElement('div');
+            line.className = 'flow-line';
+            line.style.width = (100 + Math.random() * 200) + 'px';
+            line.style.bottom = (20 + Math.random() * 160) + 'px';
+            line.style.animationDelay = Math.random() * 3 + 's';
+            line.style.animationDuration = (2 + Math.random() * 2) + 's';
+            trafficFlow.appendChild(line);
+        }
+
+        // Animated Counters
+        let co2Count = 842.00;
+        let vehicleCount = 1247892;
+        let agentCount = 2847;
+
+        setInterval(() => {
+            co2Count += 0.04;
+            document.getElementById('footer-counter').innerText = co2Count.toFixed(2);
+            document.getElementById('stat-co2').innerHTML = co2Count.toFixed(1) + '<span class="text-lg">kg</span>';
+        }, 1000);
+
+        setInterval(() => {
+            vehicleCount += Math.floor(Math.random() * 50);
+            document.getElementById('stat-vehicles').innerText = vehicleCount.toLocaleString();
+        }, 2000);
+
+        setInterval(() => {
+            const newLatency = 10 + Math.floor(Math.random() * 8);
+            document.getElementById('latency').innerText = newLatency + 'ms';
+        }, 3000);
+
+        setInterval(() => {
+            agentCount = 2840 + Math.floor(Math.random() * 20);
+            document.getElementById('agent-count').innerText = agentCount.toLocaleString();
+        }, 5000);
+
+        // Terminal Animation
+        setTimeout(() => {
+            document.querySelectorAll('.terminal-line').forEach((line, index) => {
+                line.style.opacity = '1';
+            });
+        }, 2500);
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Update timestamp
+        setInterval(() => {
+            const now = new Date();
+            const seconds = Math.floor((Date.now() % 60000) / 1000);
+            if (seconds < 5) {
+                document.getElementById('last-update').innerText = 'Just now';
+            } else if (seconds < 60) {
+                document.getElementById('last-update').innerText = seconds + 's ago';
+            }
+        }, 1000);
+    </script>
+</body>
+
+</html>

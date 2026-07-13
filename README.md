@@ -25,7 +25,7 @@ The simulation comprises two main systems:
 
 ## 🛠️ Tech Stack
 
-- **Framework**: React 19 + TypeScript
+- **Framework**: React 19 + TypeScript + TensorFlow
 - **Build Tool**: Vite
 - **Data Visualization**: Recharts
 - **Styling**: Tailwind CSS (integrated into the Green-Pulse UI)

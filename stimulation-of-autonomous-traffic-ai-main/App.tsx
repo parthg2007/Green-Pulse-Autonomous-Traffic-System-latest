@@ -37,16 +37,16 @@ const TrafficLightDisplay = ({ side, activeSide, phase, timer }: { side: Traffic
   const directionName = side === TrafficSide.NS ? 'North-South' : 'East-West';
 
   return (
-    <div className={`p-4 px-8 rounded-xl border transition-all duration-700 ${isActive ? 'border-indigo-500/50 bg-indigo-500/10 scale-105 opacity-100' : 'border-zinc-800/50 bg-zinc-900/30 opacity-40 grayscale-[0.5]'
+    <div className={`p-2 px-4 sm:p-4 sm:px-8 rounded-xl border transition-all duration-700 ${isActive ? 'border-indigo-500/50 bg-indigo-500/10 scale-105 opacity-100' : 'border-zinc-800/50 bg-zinc-900/30 opacity-40 grayscale-[0.5]'
       } backdrop-blur-md`}>
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
         <NavigationIcon rotate={side === TrafficSide.EW} />
-        <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{directionName}</div>
+        <div className="text-[8px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest">{directionName}</div>
       </div>
-      <div className={`text-4xl font-mono font-black text-center ${isActive ? 'text-white' : 'text-zinc-800'}`}>
+      <div className={`text-2xl sm:text-4xl font-mono font-black text-center ${isActive ? 'text-white' : 'text-zinc-800'}`}>
         {isActive ? Math.max(0, timer).toString().padStart(2, '0') : '--'}
       </div>
-      <div className="flex justify-center gap-2 mt-4">
+      <div className="flex justify-center gap-2 mt-2 sm:mt-4">
         <div className={`w-3 h-3 rounded-full transition-all duration-300 ${isActive && phase === Phase.GREEN ? 'bg-emerald-400 shadow-[0_0_15px_#10b981]' : 'bg-zinc-800'}`} />
         <div className={`w-3 h-3 rounded-full transition-all duration-300 ${isActive && phase === Phase.YELLOW ? 'bg-amber-400 shadow-[0_0_15px_#f59e0b]' : 'bg-zinc-800'}`} />
         <div className={`w-3 h-3 rounded-full transition-all duration-300 ${!isActive ? 'bg-rose-500 shadow-[0_0_15px_#ef4444]' : 'bg-zinc-800'}`} />
@@ -418,9 +418,9 @@ const App: React.FC = () => {
     [metrics.rewardHistory]);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden text-zinc-900 transition-colors duration-1000" style={{ backgroundColor: WEATHER[weatherMode].bg }}>
+    <div className="flex flex-col h-screen text-zinc-900 transition-colors duration-1000" style={{ backgroundColor: WEATHER[weatherMode].bg }}>
       {/* Header Bar */}
-      <header className="px-4 py-3 bg-zinc-950 border-b border-zinc-800 flex justify-between items-center z-50">
+      <header className="px-4 py-3 bg-zinc-950 border-b border-zinc-800 flex flex-wrap justify-between items-center gap-3 z-50 shrink-0">
         <div className="flex items-center gap-4">
           <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg text-white shadow-lg shadow-indigo-500/20">
             <BrainIcon />
@@ -436,7 +436,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3 items-center">
           <div className="flex items-center gap-2 bg-zinc-900 px-4 py-1.5 rounded-lg border border-zinc-800">
             <span className="text-xs">🌿</span>
             <span className="text-[10px] font-black text-zinc-500 uppercase">CO₂:</span>
@@ -480,16 +480,16 @@ const App: React.FC = () => {
       </header>
 
       {/* Main Workspace */}
-      <main className="flex-1 flex p-4 gap-6 bg-black overflow-hidden">
+      <main className="flex-1 flex flex-col xl:flex-row p-4 gap-4 bg-black overflow-y-auto overflow-x-hidden min-h-0">
         {/* Simulation Canvas */}
-        <div className="flex-[3] bg-zinc-950 rounded-2xl relative border border-zinc-900 overflow-hidden flex items-center justify-center">
+        <div className="xl:flex-[3] bg-zinc-950 rounded-2xl relative border border-zinc-900 overflow-hidden flex items-center justify-center min-h-[300px] xl:min-h-0">
           {/* HUD Overlay for Lights */}
-          <div className="absolute top-8 left-0 right-0 flex justify-center gap-12 z-30 pointer-events-none">
+          <div className="absolute top-4 sm:top-8 left-0 right-0 flex justify-center gap-4 sm:gap-12 z-30 pointer-events-none px-2">
             <TrafficLightDisplay side={TrafficSide.NS} activeSide={activeSide} phase={phase} timer={timer} />
             <TrafficLightDisplay side={TrafficSide.EW} activeSide={activeSide} phase={phase} timer={timer} />
           </div>
 
-          <svg className="w-full h-full" viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`}>
+          <svg className="w-full h-full" viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`} preserveAspectRatio="xMidYMid meet">
             <defs>
               <pattern id="asphalt" width="100" height="100" patternUnits="userSpaceOnUse">
                 <rect width="100" height="100" fill="#18181b" />
@@ -559,7 +559,7 @@ const App: React.FC = () => {
         </div>
 
         {/* Dashboard Side Panel */}
-        <div className="flex-1 flex flex-col gap-6 overflow-y-auto pr-1">
+        <div className="xl:flex-1 flex flex-col gap-4 xl:gap-6 overflow-y-auto pr-1 xl:min-w-[320px] shrink-0">
           {/* Lane Status */}
           <section className="bg-zinc-950 p-6 rounded-2xl border border-zinc-900 shadow-xl">
             <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-6 flex justify-between">
@@ -670,8 +670,8 @@ const App: React.FC = () => {
       </main>
 
       {/* Global Status Footer */}
-      <footer className="px-6 py-3 bg-zinc-950 border-t border-zinc-900 flex justify-between items-center text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em]">
-        <div className="flex gap-8">
+      <footer className="px-4 sm:px-6 py-3 bg-zinc-950 border-t border-zinc-900 flex flex-wrap justify-between items-center gap-2 text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] shrink-0">
+        <div className="flex flex-wrap gap-4 sm:gap-8">
           <span className="flex items-center gap-2">
             <span className="text-emerald-500">🌿</span> CO₂ Reduction Target: -30%
           </span>
